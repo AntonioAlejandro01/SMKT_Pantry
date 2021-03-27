@@ -1,4 +1,4 @@
-package com.antonioalejandro.utils.smktpantry;
+package com.antonioalejandro.smkt.pantry;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
