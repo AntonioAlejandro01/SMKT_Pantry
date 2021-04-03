@@ -77,7 +77,8 @@ public class ProductServiceImpl implements ProductService {
 		try (Response response = client.newCall(req).execute()) {
 			if (response.code() == HttpStatus.OK.value()) {
 				return Optional.of(response.body().byteStream().readAllBytes());
-			} else if (response.code() == HttpStatus.UNAUTHORIZED.value()) {
+			} else if (response.code() == HttpStatus.UNAUTHORIZED.value() || response.code() == HttpStatus.BAD_REQUEST.value()) {
+				log.debug("Message {}",response.body().string());
 				throw new ErrorService(HttpStatus.UNAUTHORIZED, "You can't do this operation or token is expired");
 			} else {
 				HttpStatus status = HttpStatus.valueOf(response.code());
@@ -162,6 +163,10 @@ public class ProductServiceImpl implements ProductService {
 
 		Product product = oProduct.get();
 
+		if (product.getAmount() - amount < 0) {
+			throw new ErrorService(HttpStatus.BAD_REQUEST, "The amount is not enough");
+		}
+		
 		product.setAmount(product.getAmount() - amount);
 
 		if (Optional.ofNullable(repository.save(product)).isEmpty()) {

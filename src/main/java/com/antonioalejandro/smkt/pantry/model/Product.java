@@ -15,44 +15,44 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Data;
 
 @Entity
 @Table(name = "products")
 @Data
-public class Product {
-	
+@JsonIgnoreProperties({ "userId" })
+public class Product{
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@JsonProperty
 	private int id;
 
 	/** The name. */
-	@JsonProperty
 	private String name;
 
 	/** The category. */
-	@JsonProperty
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	private Category category;
 
 	/** The code key. */
-	@JsonProperty
 	private String codeKey;
 
 	/** The price. */
-	@JsonProperty
 	private Double price;
 
 	/** The amount. */
-	@JsonProperty
 	private Integer amount;
-	
+
 	/** The user id. */
-	@JsonIgnore
 	private String userId;
+	
+	@JsonGetter()
+	public int category() {
+		return this.category.getId();
+	}
+	
 
 }

@@ -19,7 +19,7 @@ public interface ProductDao extends PagingAndSortingRepository<Product, Integer>
 	 * @param userId the user id
 	 * @return the list
 	 */
-	@Query(value = "SELECT * FROM products AS p WHERE p.userId = :userId", nativeQuery = true)
+	@Query(value = "SELECT * FROM products AS p WHERE p.user_Id = :userId", nativeQuery = true)
 	public List<Product> findAll(@Param("userId") String userId);
 
 	/**
@@ -29,7 +29,7 @@ public interface ProductDao extends PagingAndSortingRepository<Product, Integer>
 	 * @param id     the id
 	 * @return the optional
 	 */
-	@Query(value = "SELECT * FROM products AS p WHERE p.userId = :userId AND p.id = :id", nativeQuery = true)
+	@Query(value = "SELECT * FROM products AS p WHERE p.user_Id = :userId AND p.id = :id", nativeQuery = true)
 	public Product findById(@Param("userId") String userId, @Param("id") long id);
 
 	/**
@@ -39,7 +39,7 @@ public interface ProductDao extends PagingAndSortingRepository<Product, Integer>
 	 * @param name   the name
 	 * @return the optional
 	 */
-	@Query(value = "SELECT * FROM products AS p WHERE p.userId = :userId AND p.name = :name", nativeQuery = true)
+	@Query(value = "SELECT * FROM products AS p WHERE p.user_Id = :userId AND p.name = :name", nativeQuery = true)
 	public List<Product> searchByName(@Param("userId") String userId, @Param("name") String name);
 
 	/**
@@ -49,7 +49,7 @@ public interface ProductDao extends PagingAndSortingRepository<Product, Integer>
 	 * @param category the category
 	 * @return the list
 	 */
-	@Query(value = "SELECT * FROM products AS p WHERE p.userId = :userId AND p.category = :category", nativeQuery = true)
+	@Query(value = "SELECT * FROM products AS p WHERE p.user_Id = :userId AND p.category_id = :category", nativeQuery = true)
 	public List<Product> searchByCateogry(@Param("userId") String userId, @Param("category") int category);
 	
 	/**
@@ -59,7 +59,7 @@ public interface ProductDao extends PagingAndSortingRepository<Product, Integer>
 	 * @param codekey the codekey
 	 * @return the list
 	 */
-	@Query(value = "SELECT * FROM products AS p WHERE p.userId = :userId AND p.codekey = :codekey", nativeQuery = true)
+	@Query(value = "SELECT * FROM products AS p WHERE p.user_Id = :userId AND p.code_key = :codekey", nativeQuery = true)
 	public List<Product> searchByCodekey(@Param("userId") String userId, @Param("codekey") String codekey);
 	
 	/**
@@ -69,7 +69,7 @@ public interface ProductDao extends PagingAndSortingRepository<Product, Integer>
 	 * @param price the price
 	 * @return the list
 	 */
-	@Query(value = "SELECT * FROM products AS p WHERE p.userId = :userId AND p.price <= :price", nativeQuery = true)
+	@Query(value = "SELECT * FROM products AS p WHERE p.user_Id = :userId AND p.price <= :price", nativeQuery = true)
 	public List<Product> searchByPrice(@Param("userId") String userId, @Param("price") double price);
 	
 	/**
@@ -79,7 +79,7 @@ public interface ProductDao extends PagingAndSortingRepository<Product, Integer>
 	 * @param amount the amount
 	 * @return the list
 	 */
-	@Query(value = "SELECT * FROM products AS p WHERE p.userId = :userId AND p.amount <= :amount", nativeQuery = true)
+	@Query(value = "SELECT * FROM products AS p WHERE p.user_Id = :userId AND p.amount <= :amount", nativeQuery = true)
 	public List<Product> searchByAmount(@Param("userId") String userId, @Param("amount") int amount);
 
 }

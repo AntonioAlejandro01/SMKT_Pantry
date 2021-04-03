@@ -61,12 +61,19 @@ public enum FilterEnum {
 					return dao.searchByAmount(userId, Integer.parseInt(value));
 				} catch (NumberFormatException e) {
 					throw new ErrorService(HttpStatus.BAD_REQUEST,
-							"The value of value parameter is not valid for amount the type must be a integer");
+							"The value of value parameter is not valid for amount, the type must be a integer");
 				}
 			};
 			break;
 		case CATEGORY:
-			operationSearch = (userId, value, dao) -> dao.searchByCateogry(userId, Integer.parseInt(value));
+			operationSearch = (userId, value, dao) -> {
+				try {
+					return dao.searchByCateogry(userId, Integer.parseInt(value));
+				} catch (NumberFormatException e) {
+					throw new ErrorService(HttpStatus.BAD_REQUEST,
+							"The value of value parameter is not valid for category, the type must be a integer");
+				}
+			};
 			break;
 		case PRICE:
 			operationSearch = (userId, value, dao) -> {
@@ -74,7 +81,7 @@ public enum FilterEnum {
 					return dao.searchByPrice(userId, Double.parseDouble(value));
 				} catch (NumberFormatException e) {
 					throw new ErrorService(HttpStatus.BAD_REQUEST,
-							"The value of value parameter is not valid for amount the type must be a double");
+							"The value of value parameter is not valid for price, the type must be a double");
 				}
 			};
 			break;

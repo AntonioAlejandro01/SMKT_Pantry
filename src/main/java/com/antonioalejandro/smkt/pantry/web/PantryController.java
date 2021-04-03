@@ -58,12 +58,10 @@ public class PantryController {
 	 */
 	public PantryController() {
 		this.mapperListToResponse = list -> {
-			ResponseEntity<List<Product>> response;
 			if (list.isEmpty()) {
-				response = ResponseEntity.notFound().build();
+				return ResponseEntity.noContent().build();
 			}
-			response = ResponseEntity.ok(list);
-			return response;
+			return ResponseEntity.ok(list);
 		};
 	}
 
