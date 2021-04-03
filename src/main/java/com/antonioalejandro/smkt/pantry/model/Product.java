@@ -15,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
@@ -49,5 +50,9 @@ public class Product {
 	/** The amount. */
 	@JsonProperty
 	private Integer amount;
+	
+	/** The user id. */
+	@JsonIgnore
+	private String userId;
 
 }

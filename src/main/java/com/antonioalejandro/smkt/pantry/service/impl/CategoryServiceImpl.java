@@ -1,6 +1,7 @@
 package com.antonioalejandro.smkt.pantry.service.impl;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -35,5 +36,11 @@ public class CategoryServiceImpl implements CategoryService {
 		return StreamSupport.stream(repository.findAll().spliterator(), false)
 				.sorted((Category c, Category c2) -> Integer.compare(c.getId(), c2.getId()))
 				.collect(Collectors.toList());
+	}
+
+	@Override
+	public Optional<Category> getCategoryById(int id) {
+		log.info("Service: getById {}", id);
+		return repository.findById(id);
 	}
 }
