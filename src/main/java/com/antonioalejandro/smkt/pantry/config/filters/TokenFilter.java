@@ -54,24 +54,28 @@ public class TokenFilter implements Filter {
 			throws IOException, ServletException {
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpServletResponse myResponse = (HttpServletResponse) response;
+		if (httpRequest.getRequestURI().startsWith("/products/")) {
 
-		Optional<String> token = Optional.ofNullable(httpRequest.getHeader("Authorization"))
-				.map(tok -> tok.split(" ")[1]);
+			Optional<String> token = Optional.ofNullable(httpRequest.getHeader("Authorization"))
+					.map(tok -> tok.split(" ")[1]);
 
-		if (token.isEmpty()) {
-			log.info("Request without token");
-			myResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
-			return;
+			if (token.isEmpty()) {
+				log.info("Request without token");
+				myResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
+				return;
+			}
+			HeaderMapRequestWrapper requestWrapper = new HeaderMapRequestWrapper(httpRequest);
+			Optional<String> userId = tokenService.getUserId(token.get());
+			if (userId.isEmpty()) {
+				log.info("Token is not valid");
+				myResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
+				return;
+			}
+			requestWrapper.addHeader("userID", userId.get());
+			chain.doFilter(requestWrapper, response);
+		} else {
+			chain.doFilter(request, response);
 		}
-		HeaderMapRequestWrapper requestWrapper = new HeaderMapRequestWrapper(httpRequest);
-		Optional<String> userId = tokenService.getUserId(token.get());
-		if (userId.isEmpty()) {
-			log.info("Token is not valid");
-			myResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
-			return;
-		}
-		requestWrapper.addHeader("userID", userId.get());
-		chain.doFilter(requestWrapper, response);
 	}
 
 	/**

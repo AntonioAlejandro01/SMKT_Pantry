@@ -31,6 +31,11 @@ import com.antonioalejandro.smkt.pantry.service.ProductService;
 import com.antonioalejandro.smkt.pantry.utils.Constants;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -67,15 +72,15 @@ public class PantryController {
 		};
 	}
 
-	/**
-	 * Gets the all.
-	 *
-	 * @param userId the user id
-	 * @return the all
-	 * @throws ErrorService the error service
-	 */
+	@ApiOperation(value = "Get all Product for user in token", responseContainer = "List", httpMethod = "GET", notes = "Get all Products that the user in the token is owner")
+	@ApiImplicitParams(value = {
+			@ApiImplicitParam(name = "Authorization", value = "JWT Token", required = true, type = "string", readOnly = true, paramType = "Header"),
+			@ApiImplicitParam(name = "userID", value = "Username for the user in token. The value autofill.", required = false, type = "string", readOnly = true, paramType = "Header") })
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, response = Product.class, responseContainer = "List", message = "OK"),
+			@ApiResponse(code = 204, message = "No Content"), @ApiResponse(code = 401, message = "Unauthorized") })
 	@GetMapping("all")
-	public ResponseEntity<List<Product>> getAll(@RequestHeader(name = "userID", required = true) final String userId)
+	public ResponseEntity<List<Product>> getAll(@RequestHeader(name = "userID", required = false) final String userId)
 			throws ErrorService {
 
 		log.info("All product for {}", userId);
@@ -92,9 +97,16 @@ public class PantryController {
 	 * @return the by id
 	 * @throws ErrorService the error service
 	 */
+	@ApiOperation(value = "Get Product by id", httpMethod = "GET", notes = "Get a product by id")
+	@ApiImplicitParams(value = {
+			@ApiImplicitParam(name = "Authorization", value = "JWT Token", required = true, type = "string", readOnly = true, paramType = "Header"),
+			@ApiImplicitParam(name = "userID", value = "Username for the user in token. The value autofill.", required = false, type = "string", readOnly = true, paramType = "Header"),
+			@ApiImplicitParam(name = "id", value = "The id for search", required = true, type = "integer", readOnly = true, paramType = "Path") })
+	@ApiResponses(value = { @ApiResponse(code = 200, response = Product.class, message = "OK"),
+			@ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 404, message = "Not Found") })
 	@GetMapping("id/{id}")
 	public ResponseEntity<Product> getById(@RequestHeader(name = "userID", required = true) final String userId,
-			@PathVariable(name = "id") final Long id) throws ErrorService {
+			@PathVariable(name = "id", required = true) final Long id) throws ErrorService {
 		log.info("getById {}, user: {}", id, userId);
 		return productService.productById(userId, id).map(product -> ResponseEntity.ok().body(product))
 				.orElse(ResponseEntity.notFound().build());
@@ -109,6 +121,16 @@ public class PantryController {
 	 * @return the response entity
 	 * @throws ErrorService the error service
 	 */
+	@ApiOperation(value = "Search a Product by a filter", httpMethod = "GET", notes = "Get all Product that matches with filter and value for this filter")
+	@ApiImplicitParams(value = {
+			@ApiImplicitParam(name = "Authorization", value = "JWT Token", required = true, type = "string", readOnly = true, paramType = "Header"),
+			@ApiImplicitParam(name = "userID", value = "Username for the user in token. The value autofill.", required = false, type = "string", readOnly = true, paramType = "Header"),
+			@ApiImplicitParam(name = "filter", value = "The type of filter", required = true, type = "string", allowableValues = "NAME, CATEGORY, CODEKEY, PRICE, AMOUNT", readOnly = true, paramType = "Path"),
+			@ApiImplicitParam(name = "value", value = "the value for filter", required = true, type = "string", readOnly = true, paramType = "Path") })
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, response = Product.class, responseContainer = "List", message = "OK"),
+			@ApiResponse(code = 204, message = "No Content"), @ApiResponse(code = 401, message = "Unauthorized"),
+			@ApiResponse(code = 400, message = "Bad Request"), @ApiResponse(code = 404, message = "Not Found") })
 	@GetMapping("search/{filter}/{value}")
 	public ResponseEntity<List<Product>> search(@RequestHeader(name = "userID", required = true) final String userId,
 			@PathVariable(name = "filter") String filter, @PathVariable(name = "value") String value)
@@ -123,6 +145,12 @@ public class PantryController {
 	 *
 	 * @return the categories
 	 */
+	@ApiOperation(value = "Get all Categories", httpMethod = "GET", notes = "Get all Categories")
+	@ApiImplicitParams(value = {
+			@ApiImplicitParam(name = "Authorization", value = "JWT Token", required = true, type = "string", readOnly = true, paramType = "Header"), })
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, response = Category.class, responseContainer = "List", message = "OK"),
+			@ApiResponse(code = 204, message = "No Content"), @ApiResponse(code = 401, message = "Unauthorized") })
 	@GetMapping("categories")
 	public ResponseEntity<List<Category>> getCategories() {
 		log.info("Call /products/categories");
@@ -134,6 +162,12 @@ public class PantryController {
 	 *
 	 * @return the filter
 	 */
+	@ApiOperation(value = "Get all Filter", httpMethod = "GET", notes = "Get all Filters")
+	@ApiImplicitParams(value = {
+			@ApiImplicitParam(name = "Authorization", value = "JWT Token", required = true, type = "string", readOnly = true, paramType = "Header"), })
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, response = Filter.class, responseContainer = "List", message = "OK"),
+			@ApiResponse(code = 401, message = "Unauthorized") })
 	@GetMapping("filters")
 	public ResponseEntity<List<Filter>> getFilter() {
 		log.info("call /products/filters");
@@ -145,10 +179,16 @@ public class PantryController {
 	 * Gets the excel.
 	 *
 	 * @param userId the user id
-	 * @param token the token
+	 * @param token  the token
 	 * @return the excel
 	 * @throws ErrorService the error service
 	 */
+	@ApiOperation(value = "Get Excel File ", httpMethod = "GET", notes = "Get excel file for all products that the user in token have it", produces = Constants.PRODUCES_XSL)
+	@ApiImplicitParams(value = {
+			@ApiImplicitParam(name = "Authorization", value = "JWT Token", required = true, type = "string", readOnly = true, paramType = "Header"),
+			@ApiImplicitParam(name = "userID", value = "Username for the user in token. The value autofill.", required = false, type = "string", readOnly = true, paramType = "Header"), })
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "No Content"),
+			@ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 404, message = "Not Found") })
 	@GetMapping(value = "/excel", produces = Constants.PRODUCES_XSL)
 	public ResponseEntity<byte[]> getExcel(@RequestHeader(name = "userID", required = true) final String userId,
 			@RequestHeader(name = "Authorization", required = true) final String token) throws ErrorService {
@@ -171,6 +211,14 @@ public class PantryController {
 	 * @return the response entity
 	 * @throws ErrorService the error service
 	 */
+	@ApiOperation(value = "Create a new Product", httpMethod = "POST", notes = "Create a new Product, the owner is the user in the token")
+	@ApiImplicitParams(value = {
+			@ApiImplicitParam(name = "Authorization", value = "JWT Token", required = true, type = "string", readOnly = true, paramType = "Header"),
+			@ApiImplicitParam(name = "userID", value = "Username for the user in token. The value autofill.", required = false, type = "string", readOnly = true, paramType = "Header"), })
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, response = Product.class, responseContainer = "List", message = "OK"),
+			@ApiResponse(code = 204, message = "No Content"), @ApiResponse(code = 401, message = "Unauthorized"),
+			@ApiResponse(code = 400, message = "Bad Request"), @ApiResponse(code = 404, message = "Not Found") })
 	@PostMapping()
 	public ResponseEntity<Product> postProduct(@RequestHeader(name = "userID", required = true) final String userId,
 			@RequestBody(required = true) ProductDTO product) throws ErrorService {
@@ -188,6 +236,15 @@ public class PantryController {
 	 * @return the response entity
 	 * @throws ErrorService the error service
 	 */
+	@ApiOperation(value = "Update a Product by id", httpMethod = "PUT", notes = "Update a Product by id")
+	@ApiImplicitParams(value = {
+			@ApiImplicitParam(name = "Authorization", value = "JWT Token", required = true, type = "string", readOnly = true, paramType = "Header"),
+			@ApiImplicitParam(name = "userID", value = "Username for the user in token. The value autofill.", required = false, type = "string", readOnly = true, paramType = "Header"),
+			@ApiImplicitParam(name = "id", value = "The id", required = true, type = "integer", readOnly = true, paramType = "Path") })
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, response = Product.class, responseContainer = "List", message = "OK"),
+			@ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 400, message = "Bad Request"),
+			@ApiResponse(code = 404, message = "Not Found") })
 	@PutMapping("{id}")
 	public ResponseEntity<Product> putProduct(@RequestHeader(name = "userID", required = true) final String userId,
 			@PathVariable(name = "id") long id, @RequestBody(required = true) ProductDTO product) throws ErrorService {
@@ -205,6 +262,14 @@ public class PantryController {
 	 * @return the response entity
 	 * @throws ErrorService the error service
 	 */
+	@ApiOperation(value = "Add amount for one product", httpMethod = "PATCH", notes = "Shortcut for add amount to one product")
+	@ApiImplicitParams(value = {
+			@ApiImplicitParam(name = "Authorization", value = "JWT Token", required = true, type = "string", readOnly = true, paramType = "Header"),
+			@ApiImplicitParam(name = "userID", value = "Username for the user in token. The value autofill.", required = false, type = "string", readOnly = true, paramType = "Header"),
+			@ApiImplicitParam(name = "id", value = "The id", required = true, type = "integer", readOnly = true, paramType = "Path") })
+	@ApiResponses(value = { @ApiResponse(code = 204, message = "No Content"),
+			@ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 400, message = "Bad Request"),
+			@ApiResponse(code = 404, message = "Not Found") })
 	@PatchMapping("add/{id}")
 	public ResponseEntity<Object> addAmountToProduct(
 			@RequestHeader(name = "userID", required = true) final String userId,
@@ -224,6 +289,14 @@ public class PantryController {
 	 * @return the response entity
 	 * @throws ErrorService the error service
 	 */
+	@ApiOperation(value = "Remove amount for one product", httpMethod = "PATCH", notes = "Shortcut for remove amount to one product")
+	@ApiImplicitParams(value = {
+			@ApiImplicitParam(name = "Authorization", value = "JWT Token", required = true, type = "string", readOnly = true, paramType = "Header"),
+			@ApiImplicitParam(name = "userID", value = "Username for the user in token. The value autofill.", required = false, type = "string", readOnly = true, paramType = "Header"),
+			@ApiImplicitParam(name = "id", value = "The id", required = true, type = "integer", readOnly = true, paramType = "Path") })
+	@ApiResponses(value = { @ApiResponse(code = 204, message = "No Content"),
+			@ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 400, message = "Bad Request"),
+			@ApiResponse(code = 404, message = "Not Found") })
 	@PatchMapping("remove/{id}")
 	public ResponseEntity<Object> removeAmountToProduct(
 			@RequestHeader(name = "userID", required = true) final String userId,
@@ -242,6 +315,14 @@ public class PantryController {
 	 * @return the response entity
 	 * @throws ErrorService the error service
 	 */
+	@ApiOperation(value = "Delete a Product", httpMethod = "DELETE", notes = "Delete a Product by id")
+	@ApiImplicitParams(value = {
+			@ApiImplicitParam(name = "Authorization", value = "JWT Token", required = true, type = "string", readOnly = true, paramType = "Header"),
+			@ApiImplicitParam(name = "userID", value = "Username for the user in token. The value autofill.", required = false, type = "string", readOnly = true, paramType = "Header"),
+			@ApiImplicitParam(name = "id", value = "The id", required = true, type = "integer", readOnly = true, paramType = "Path") })
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+			@ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 400, message = "Bad Request"),
+			@ApiResponse(code = 404, message = "Not Found") })
 	@DeleteMapping("{id}")
 	public ResponseEntity<Void> deleteProduct(@RequestHeader(name = "userID", required = true) final String userId,
 			@PathVariable(name = "id", required = true) long id) throws ErrorService {
