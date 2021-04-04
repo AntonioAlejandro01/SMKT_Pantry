@@ -2,6 +2,10 @@ package com.antonioalejandro.smkt.pantry.service;
 
 import java.util.Optional;
 
+
+/**
+ * The Interface TokenService.
+ */
 public interface TokenService {
 
 	/**

@@ -31,6 +31,8 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Component
 @Order(1)
+
+/** The Constant log. */
 @Slf4j
 public class TokenFilter implements Filter {
 
@@ -41,10 +43,10 @@ public class TokenFilter implements Filter {
 	/**
 	 * Do filter.
 	 *
-	 * @param request the request
+	 * @param request  the request
 	 * @param response the response
-	 * @param chain the chain
-	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @param chain    the chain
+	 * @throws IOException      Signals that an I/O exception has occurred.
 	 * @throws ServletException the servlet exception
 	 */
 	@Override
@@ -68,7 +70,7 @@ public class TokenFilter implements Filter {
 			myResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
 			return;
 		}
-		requestWrapper.addHeader("userID",userId.get());
+		requestWrapper.addHeader("userID", userId.get());
 		chain.doFilter(requestWrapper, response);
 	}
 
@@ -76,10 +78,11 @@ public class TokenFilter implements Filter {
 	 * The Class HeaderMapRequestWrapper.
 	 */
 	public class HeaderMapRequestWrapper extends HttpServletRequestWrapper {
+
 		/**
-		 * construct a wrapper for this request
-		 * 
-		 * @param request
+		 * construct a wrapper for this request.
+		 *
+		 * @param request the request
 		 */
 		public HeaderMapRequestWrapper(HttpServletRequest request) {
 			super(request);
@@ -89,10 +92,10 @@ public class TokenFilter implements Filter {
 		private Map<String, String> headerMap = new HashMap<>();
 
 		/**
-		 * add a header with given name and value
-		 * 
-		 * @param name
-		 * @param value
+		 * add a header with given name and value.
+		 *
+		 * @param name  the name
+		 * @param value the value
 		 */
 		public void addHeader(String name, String value) {
 			headerMap.put(name, value);
@@ -114,7 +117,9 @@ public class TokenFilter implements Filter {
 		}
 
 		/**
-		 * get the Header names
+		 * get the Header names.
+		 *
+		 * @return the header names
 		 */
 		@Override
 		public Enumeration<String> getHeaderNames() {

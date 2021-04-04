@@ -5,6 +5,10 @@ import lombok.Data;
 /**
  * Instantiates a new product DTO.
  */
+
+/**
+ * Instantiates a new product DTO.
+ */
 @Data
 public class ProductDTO {
 

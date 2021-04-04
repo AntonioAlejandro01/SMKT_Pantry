@@ -76,7 +76,11 @@ public interface ProductService {
 	/**
 	 * Adds the amount to product.
 	 *
+	 * @param userId the user id
+	 * @param id the id
+	 * @param amount the amount
 	 * @return the optional
+	 * @throws ErrorService the error service
 	 */
 	public void addAmountToProduct(String userId, long id, int amount) throws ErrorService;
 
@@ -98,6 +102,7 @@ public interface ProductService {
 	 * @param userId the user id
 	 * @param id the id
 	 * @return the http status
+	 * @throws ErrorService the error service
 	 */
 	public void deleteProduct(String userId, long id) throws ErrorService;
 }

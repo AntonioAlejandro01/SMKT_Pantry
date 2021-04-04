@@ -1,10 +1,3 @@
-/*
- * @Author AntonioAlejandro01
- * 
- * @link http://antonioalejandro.com
- * @link https://github.com/AntonioAlejandro01/SMKT_Pantry
- * 
- */
 package com.antonioalejandro.smkt.pantry.model;
 
 import javax.persistence.Entity;
@@ -20,12 +13,20 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Data;
 
+/**
+ * The Class Product.
+ */
 @Entity
 @Table(name = "products")
+
+/**
+ * Instantiates a new product.
+ */
 @Data
 @JsonIgnoreProperties({ "userId" })
-public class Product{
+public class Product {
 
+	/** The id. */
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
@@ -48,11 +49,15 @@ public class Product{
 
 	/** The user id. */
 	private String userId;
-	
+
+	/**
+	 * Category.
+	 *
+	 * @return the int
+	 */
 	@JsonGetter()
 	public int category() {
 		return this.category.getId();
 	}
-	
 
 }

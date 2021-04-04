@@ -5,6 +5,10 @@ import lombok.Data;
 /**
  * The Class ProductAmountDTO.
  */
+
+/**
+ * Instantiates a new product amount DTO.
+ */
 @Data
 public class ProductAmountDTO {
 

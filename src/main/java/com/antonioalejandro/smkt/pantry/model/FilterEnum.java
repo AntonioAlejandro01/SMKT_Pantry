@@ -8,16 +8,46 @@ import org.springframework.http.HttpStatus;
 
 import lombok.Getter;
 
+/**
+ * The Enum FilterEnum.
+ */
 public enum FilterEnum {
-	NAME(1), CATEGORY(2), CODEKEY(3), PRICE(4), AMOUNT(5);
+	
+	/** The name. */
+	NAME(1), 
+ /** The category. */
+ CATEGORY(2), 
+ /** The codekey. */
+ CODEKEY(3), 
+ /** The price. */
+ PRICE(4), 
+ /** The amount. */
+ AMOUNT(5);
 
+	/**
+	 * Gets the id.
+	 *
+	 * @return the id
+	 */
 	@Getter
 	private final int id;
 
+	/**
+	 * Instantiates a new filter enum.
+	 *
+	 * @param id the id
+	 */
 	private FilterEnum(int id) {
 		this.id = id;
 	}
 
+	/**
+	 * From name.
+	 *
+	 * @param name the name
+	 * @return the filter enum
+	 * @throws ErrorService the error service
+	 */
 	public static FilterEnum fromName(String name) throws ErrorService{
 		FilterEnum filterEnum;
 
@@ -43,12 +73,22 @@ public enum FilterEnum {
 		return filterEnum;
 	}
 
+	/**
+	 * All filters.
+	 *
+	 * @return the list
+	 */
 	public static List<Filter> allFilters() {
 		return Stream.of(FilterEnum.values())
 				.map(filterEnum -> Filter.builder().id(filterEnum.id).value(filterEnum.toString()).build())
 				.collect(Collectors.toList());
 	}
 
+	/**
+	 * Gets the function for search.
+	 *
+	 * @return the function for search
+	 */
 	public OperationSearchProduct getFunctionForSearch() {
 		OperationSearchProduct operationSearch = null;
 		switch (this) {

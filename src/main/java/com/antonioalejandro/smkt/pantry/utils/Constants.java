@@ -1,7 +1,13 @@
 package com.antonioalejandro.smkt.pantry.utils;
 
+/**
+ * The Class Constants.
+ */
 public class Constants {
 
+	/**
+	 * Instantiates a new constants.
+	 */
 	private Constants() {
 	}
 

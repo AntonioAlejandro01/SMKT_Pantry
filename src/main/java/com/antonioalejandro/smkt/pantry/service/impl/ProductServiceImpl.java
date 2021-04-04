@@ -28,7 +28,12 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+/**
+ * The Class ProductServiceImpl.
+ */
 @Service
+
+/** The Constant log. */
 @Slf4j
 public class ProductServiceImpl implements ProductService {
 
@@ -50,16 +55,40 @@ public class ProductServiceImpl implements ProductService {
 	@Autowired
 	private DiscoveryClient discoveryClient;
 
+	/**
+	 * All products.
+	 *
+	 * @param userId the user id
+	 * @return the optional
+	 * @throws ErrorService the error service
+	 */
 	@Override
 	public Optional<List<Product>> allProducts(String userId) throws ErrorService {
 		return Optional.ofNullable(repository.findAll(userId));
 	}
 
+	/**
+	 * Product by id.
+	 *
+	 * @param userId the user id
+	 * @param id the id
+	 * @return the optional
+	 * @throws ErrorService the error service
+	 */
 	@Override
 	public Optional<Product> productById(String userId, long id) throws ErrorService {
 		return Optional.ofNullable(repository.findById(userId, id));
 	}
 
+	/**
+	 * Search by filter.
+	 *
+	 * @param userId the user id
+	 * @param filter the filter
+	 * @param value the value
+	 * @return the optional
+	 * @throws ErrorService the error service
+	 */
 	@Override
 	public Optional<List<Product>> searchByFilter(String userId, String filter, String value) throws ErrorService {
 		return Optional
@@ -67,6 +96,14 @@ public class ProductServiceImpl implements ProductService {
 
 	}
 
+	/**
+	 * Gets the excel.
+	 *
+	 * @param userId the user id
+	 * @param token the token
+	 * @return the excel
+	 * @throws ErrorService the error service
+	 */
 	@Override
 	public Optional<byte[]> getExcel(String userId, String token) throws ErrorService {
 		OkHttpClient client = new OkHttpClient();
@@ -90,6 +127,14 @@ public class ProductServiceImpl implements ProductService {
 		}
 	}
 
+	/**
+	 * Adds the product.
+	 *
+	 * @param userId the user id
+	 * @param product the product
+	 * @return the optional
+	 * @throws ErrorService the error service
+	 */
 	@Override
 	public Optional<Product> addProduct(String userId, ProductDTO product) throws ErrorService {
 
@@ -111,6 +156,15 @@ public class ProductServiceImpl implements ProductService {
 		return Optional.ofNullable(repository.save(productToSave));
 	}
 
+	/**
+	 * Put product.
+	 *
+	 * @param userId the user id
+	 * @param id the id
+	 * @param product the product
+	 * @return the optional
+	 * @throws ErrorService the error service
+	 */
 	@Override
 	public Optional<Product> putProduct(String userId, long id, ProductDTO product) throws ErrorService {
 		Optional<Product> productSaved = Optional.of(repository.findById(userId, id));
@@ -136,6 +190,14 @@ public class ProductServiceImpl implements ProductService {
 		return Optional.ofNullable(repository.save(productToUpdate));
 	}
 
+	/**
+	 * Adds the amount to product.
+	 *
+	 * @param userId the user id
+	 * @param id the id
+	 * @param amount the amount
+	 * @throws ErrorService the error service
+	 */
 	@Override
 	public void addAmountToProduct(String userId, long id, int amount) throws ErrorService {
 		Optional<Product> oProduct = Optional.ofNullable(repository.findById(userId, id));
@@ -154,6 +216,14 @@ public class ProductServiceImpl implements ProductService {
 
 	}
 
+	/**
+	 * Removes the amount to product.
+	 *
+	 * @param userId the user id
+	 * @param id the id
+	 * @param amount the amount
+	 * @throws ErrorService the error service
+	 */
 	@Override
 	public void removeAmountToProduct(String userId, long id, int amount) throws ErrorService {
 		Optional<Product> oProduct = Optional.ofNullable(repository.findById(userId, id));
@@ -175,6 +245,13 @@ public class ProductServiceImpl implements ProductService {
 		}
 	}
 
+	/**
+	 * Delete product.
+	 *
+	 * @param userId the user id
+	 * @param id the id
+	 * @throws ErrorService the error service
+	 */
 	@Override
 	public void deleteProduct(String userId, long id) throws ErrorService {
 		Optional<Product> oProduct = Optional.ofNullable(repository.findById(userId, id));

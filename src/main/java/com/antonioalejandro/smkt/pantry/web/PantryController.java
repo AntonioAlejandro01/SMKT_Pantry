@@ -36,6 +36,8 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * The Class PantryController.
  */
+
+/** The Constant log. */
 @Slf4j
 @RestController
 @RequestMapping("/products")
@@ -127,6 +129,11 @@ public class PantryController {
 		return ResponseEntity.ok(categoryService.getCategories());
 	}
 
+	/**
+	 * Gets the filter.
+	 *
+	 * @return the filter
+	 */
 	@GetMapping("filters")
 	public ResponseEntity<List<Filter>> getFilter() {
 		log.info("call /products/filters");
@@ -138,6 +145,7 @@ public class PantryController {
 	 * Gets the excel.
 	 *
 	 * @param userId the user id
+	 * @param token the token
 	 * @return the excel
 	 * @throws ErrorService the error service
 	 */

@@ -18,6 +18,8 @@ import lombok.extern.slf4j.Slf4j;
  * The Class CategoryServiceImpl.
  */
 @Service
+
+/** The Constant log. */
 @Slf4j
 public class CategoryServiceImpl implements CategoryService {
 
@@ -38,6 +40,12 @@ public class CategoryServiceImpl implements CategoryService {
 				.collect(Collectors.toList());
 	}
 
+	/**
+	 * Gets the category by id.
+	 *
+	 * @param id the id
+	 * @return the category by id
+	 */
 	@Override
 	public Optional<Category> getCategoryById(int id) {
 		log.info("Service: getById {}", id);

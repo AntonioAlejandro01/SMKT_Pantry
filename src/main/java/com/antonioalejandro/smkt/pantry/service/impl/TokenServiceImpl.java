@@ -19,6 +19,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+/** The Constant log. */
 @Slf4j
 public class TokenServiceImpl implements TokenService {
 	/** The discovery client. */
@@ -37,6 +38,12 @@ public class TokenServiceImpl implements TokenService {
 	/** The Constant AUTH_VALUE. */
 	private static final String AUTH_VALUE = "Basic c21hcnRraXRjaGVuYXBwOjEzMzMx";
 
+	/**
+	 * Gets the user id.
+	 *
+	 * @param token the token
+	 * @return the user id
+	 */
 	@Override
 	public Optional<String> getUserId(String token) {
 		OkHttpClient client = new OkHttpClient();

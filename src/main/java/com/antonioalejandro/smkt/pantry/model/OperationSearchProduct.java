@@ -4,6 +4,9 @@ import java.util.List;
 
 import com.antonioalejandro.smkt.pantry.dao.ProductDao;
 
+/**
+ * The Interface OperationSearchProduct.
+ */
 @FunctionalInterface
 public interface OperationSearchProduct {
 

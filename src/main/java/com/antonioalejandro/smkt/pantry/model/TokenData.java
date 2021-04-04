@@ -13,15 +13,45 @@ import lombok.ToString;
 /**
  * The Class TokenData.
  */
-@Getter
-@AllArgsConstructor
-@NoArgsConstructor
-@ToString
-public class TokenData implements Serializable{
 
-	/**
-	 * 
-	 */
+/**
+ * Gets the username C.
+ *
+ * @return the username C
+ */
+@Getter
+
+/**
+ * Instantiates a new token data.
+ *
+ * @param username    the username
+ * @param scope       the scope
+ * @param name        the name
+ * @param active      the active
+ * @param exp         the exp
+ * @param authorities the authorities
+ * @param jti         the jti
+ * @param email       the email
+ * @param clientId    the client id
+ * @param lastname    the lastname
+ * @param usernameC   the username C
+ */
+@AllArgsConstructor
+
+/**
+ * Instantiates a new token data.
+ */
+@NoArgsConstructor
+
+/**
+ * To string.
+ *
+ * @return the java.lang. string
+ */
+@ToString
+public class TokenData implements Serializable {
+
+	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
 
 	/** The username. */

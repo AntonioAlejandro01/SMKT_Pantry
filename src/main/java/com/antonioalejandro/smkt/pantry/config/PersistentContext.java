@@ -6,6 +6,9 @@ import org.springframework.context.annotation.Configuration;
 import com.antonioalejandro.smkt.pantry.service.TokenService;
 import com.antonioalejandro.smkt.pantry.service.impl.TokenServiceImpl;
 
+/**
+ * The Class PersistentContext.
+ */
 @Configuration
 public class PersistentContext {
 
