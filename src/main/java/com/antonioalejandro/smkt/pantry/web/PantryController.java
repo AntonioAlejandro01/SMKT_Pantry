@@ -72,6 +72,13 @@ public class PantryController {
 		};
 	}
 
+	/**
+	 * Gets the all.
+	 *
+	 * @param userId the user id
+	 * @return the all
+	 * @throws ErrorService the error service
+	 */
 	@ApiOperation(value = "Get all Product for user in token", responseContainer = "List", httpMethod = "GET", notes = "Get all Products that the user in the token is owner")
 	@ApiImplicitParams(value = {
 			@ApiImplicitParam(name = "Authorization", value = "JWT Token", required = true, type = "string", readOnly = true, paramType = "Header"),
@@ -101,12 +108,12 @@ public class PantryController {
 	@ApiImplicitParams(value = {
 			@ApiImplicitParam(name = "Authorization", value = "JWT Token", required = true, type = "string", readOnly = true, paramType = "Header"),
 			@ApiImplicitParam(name = "userID", value = "Username for the user in token. The value autofill.", required = false, type = "string", readOnly = true, paramType = "Header"),
-			@ApiImplicitParam(name = "id", value = "The id for search", required = true, type = "integer", readOnly = true, paramType = "Path") })
+			@ApiImplicitParam(name = "id", value = "The id for search", required = true, type = "string", readOnly = true, paramType = "Path") })
 	@ApiResponses(value = { @ApiResponse(code = 200, response = Product.class, message = "OK"),
 			@ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 404, message = "Not Found") })
 	@GetMapping("id/{id}")
 	public ResponseEntity<Product> getById(@RequestHeader(name = "userID", required = true) final String userId,
-			@PathVariable(name = "id", required = true) final Long id) throws ErrorService {
+			@PathVariable(name = "id", required = true) final String id) throws ErrorService {
 		log.info("getById {}, user: {}", id, userId);
 		return productService.productById(userId, id).map(product -> ResponseEntity.ok().body(product))
 				.orElse(ResponseEntity.notFound().build());
@@ -130,7 +137,8 @@ public class PantryController {
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, response = Product.class, responseContainer = "List", message = "OK"),
 			@ApiResponse(code = 204, message = "No Content"), @ApiResponse(code = 401, message = "Unauthorized"),
-			@ApiResponse(code = 400, message = "Bad Request"), @ApiResponse(code = 404, message = "Not Found") })
+			@ApiResponse(code = 400, message = "Bad Request", response = ErrorService.JSONServiceError.class),
+			@ApiResponse(code = 404, message = "Not Found") })
 	@GetMapping("search/{filter}/{value}")
 	public ResponseEntity<List<Product>> search(@RequestHeader(name = "userID", required = true) final String userId,
 			@PathVariable(name = "filter") String filter, @PathVariable(name = "value") String value)
@@ -187,8 +195,9 @@ public class PantryController {
 	@ApiImplicitParams(value = {
 			@ApiImplicitParam(name = "Authorization", value = "JWT Token", required = true, type = "string", readOnly = true, paramType = "Header"),
 			@ApiImplicitParam(name = "userID", value = "Username for the user in token. The value autofill.", required = false, type = "string", readOnly = true, paramType = "Header"), })
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "No Content"),
-			@ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 404, message = "Not Found") })
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "No Content", response = ErrorService.JSONServiceError.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorService.JSONServiceError.class),
+			@ApiResponse(code = 404, message = "Not Found") })
 	@GetMapping(value = "/excel", produces = Constants.PRODUCES_XSL)
 	public ResponseEntity<byte[]> getExcel(@RequestHeader(name = "userID", required = true) final String userId,
 			@RequestHeader(name = "Authorization", required = true) final String token) throws ErrorService {
@@ -218,8 +227,9 @@ public class PantryController {
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, response = Product.class, responseContainer = "List", message = "OK"),
 			@ApiResponse(code = 204, message = "No Content"), @ApiResponse(code = 401, message = "Unauthorized"),
-			@ApiResponse(code = 400, message = "Bad Request"), @ApiResponse(code = 404, message = "Not Found") })
-	@PostMapping()
+			@ApiResponse(code = 400, message = "Bad Request", response = ErrorService.JSONServiceError.class),
+			@ApiResponse(code = 404, message = "Not Found") })
+	@PostMapping("/")
 	public ResponseEntity<Product> postProduct(@RequestHeader(name = "userID", required = true) final String userId,
 			@RequestBody(required = true) ProductDTO product) throws ErrorService {
 		log.info("addProduct to user: {}", userId);
@@ -240,14 +250,16 @@ public class PantryController {
 	@ApiImplicitParams(value = {
 			@ApiImplicitParam(name = "Authorization", value = "JWT Token", required = true, type = "string", readOnly = true, paramType = "Header"),
 			@ApiImplicitParam(name = "userID", value = "Username for the user in token. The value autofill.", required = false, type = "string", readOnly = true, paramType = "Header"),
-			@ApiImplicitParam(name = "id", value = "The id", required = true, type = "integer", readOnly = true, paramType = "Path") })
+			@ApiImplicitParam(name = "id", value = "The id", required = true, type = "string", readOnly = true, paramType = "Path") })
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, response = Product.class, responseContainer = "List", message = "OK"),
-			@ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 400, message = "Bad Request"),
+			@ApiResponse(code = 401, message = "Unauthorized"),
+			@ApiResponse(code = 400, message = "Bad Request", response = ErrorService.JSONServiceError.class),
+			@ApiResponse(code = 403, message = "Forbidden", response = ErrorService.JSONServiceError.class),
 			@ApiResponse(code = 404, message = "Not Found") })
 	@PutMapping("{id}")
 	public ResponseEntity<Product> putProduct(@RequestHeader(name = "userID", required = true) final String userId,
-			@PathVariable(name = "id") long id, @RequestBody(required = true) ProductDTO product) throws ErrorService {
+			@PathVariable(name = "id") String id, @RequestBody(required = true) ProductDTO product) throws ErrorService {
 		log.info("update product with id {} by user {}", userId);
 		return productService.putProduct(userId, id, product).map(p -> ResponseEntity.ok().body(p))
 				.orElse(ResponseEntity.notFound().build());
@@ -266,14 +278,16 @@ public class PantryController {
 	@ApiImplicitParams(value = {
 			@ApiImplicitParam(name = "Authorization", value = "JWT Token", required = true, type = "string", readOnly = true, paramType = "Header"),
 			@ApiImplicitParam(name = "userID", value = "Username for the user in token. The value autofill.", required = false, type = "string", readOnly = true, paramType = "Header"),
-			@ApiImplicitParam(name = "id", value = "The id", required = true, type = "integer", readOnly = true, paramType = "Path") })
+			@ApiImplicitParam(name = "id", value = "The id", required = true, type = "string", readOnly = true, paramType = "Path") })
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "No Content"),
 			@ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 400, message = "Bad Request"),
-			@ApiResponse(code = 404, message = "Not Found") })
+			@ApiResponse(code = 403, message = "Forbidden", response = ErrorService.JSONServiceError.class),
+			@ApiResponse(code = 404, message = "Not Found"),
+			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorService.JSONServiceError.class) })
 	@PatchMapping("add/{id}")
 	public ResponseEntity<Object> addAmountToProduct(
 			@RequestHeader(name = "userID", required = true) final String userId,
-			@PathVariable(name = "id", required = true) long id,
+			@PathVariable(name = "id", required = true) String id,
 			@RequestParam(name = "amount", required = true) int amount) throws ErrorService {
 		log.info("add amount {} to product {} by user: {}", amount, id, userId);
 		productService.addAmountToProduct(userId, id, amount);
@@ -293,14 +307,17 @@ public class PantryController {
 	@ApiImplicitParams(value = {
 			@ApiImplicitParam(name = "Authorization", value = "JWT Token", required = true, type = "string", readOnly = true, paramType = "Header"),
 			@ApiImplicitParam(name = "userID", value = "Username for the user in token. The value autofill.", required = false, type = "string", readOnly = true, paramType = "Header"),
-			@ApiImplicitParam(name = "id", value = "The id", required = true, type = "integer", readOnly = true, paramType = "Path") })
+			@ApiImplicitParam(name = "id", value = "The id", required = true, type = "string", readOnly = true, paramType = "Path") })
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "No Content"),
-			@ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 400, message = "Bad Request"),
-			@ApiResponse(code = 404, message = "Not Found") })
+			@ApiResponse(code = 401, message = "Unauthorized"),
+			@ApiResponse(code = 400, message = "Bad Request", response = ErrorService.JSONServiceError.class),
+			@ApiResponse(code = 403, message = "Forbidden", response = ErrorService.JSONServiceError.class),
+			@ApiResponse(code = 404, message = "Not Found"),
+			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorService.JSONServiceError.class) })
 	@PatchMapping("remove/{id}")
 	public ResponseEntity<Object> removeAmountToProduct(
 			@RequestHeader(name = "userID", required = true) final String userId,
-			@PathVariable(name = "id", required = true) long id,
+			@PathVariable(name = "id", required = true) String id,
 			@RequestParam(name = "amount", required = true) int amount) throws ErrorService {
 		log.info("remove amount {} to product {} by user: {}", amount, id, userId);
 		productService.removeAmountToProduct(userId, id, amount);
@@ -319,13 +336,13 @@ public class PantryController {
 	@ApiImplicitParams(value = {
 			@ApiImplicitParam(name = "Authorization", value = "JWT Token", required = true, type = "string", readOnly = true, paramType = "Header"),
 			@ApiImplicitParam(name = "userID", value = "Username for the user in token. The value autofill.", required = false, type = "string", readOnly = true, paramType = "Header"),
-			@ApiImplicitParam(name = "id", value = "The id", required = true, type = "integer", readOnly = true, paramType = "Path") })
+			@ApiImplicitParam(name = "id", value = "The id", required = true, type = "string", readOnly = true, paramType = "Path") })
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
 			@ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 400, message = "Bad Request"),
-			@ApiResponse(code = 404, message = "Not Found") })
+			@ApiResponse(code = 403, message = "Forbidden", response = ErrorService.JSONServiceError.class) })
 	@DeleteMapping("{id}")
 	public ResponseEntity<Void> deleteProduct(@RequestHeader(name = "userID", required = true) final String userId,
-			@PathVariable(name = "id", required = true) long id) throws ErrorService {
+			@PathVariable(name = "id", required = true) String id) throws ErrorService {
 		log.info("delete product with id {} by user: {}", userId);
 		productService.deleteProduct(userId, id);
 		return new ResponseEntity<>(HttpStatus.ACCEPTED);
@@ -340,7 +357,7 @@ public class PantryController {
 	@ExceptionHandler
 	public ResponseEntity<String> handleErrorService(final ErrorService errorService) {
 		log.error("Error: {}", errorService);
-		return ErrorService.getReponse(errorService);
+		return errorService.getReponse();
 	}
 
 }

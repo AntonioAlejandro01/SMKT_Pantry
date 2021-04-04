@@ -11,7 +11,7 @@ import com.antonioalejandro.smkt.pantry.model.Product;
 /**
  * The Interface ProductDao.
  */
-public interface ProductDao extends PagingAndSortingRepository<Product, Integer> {
+public interface ProductDao extends PagingAndSortingRepository<Product, String> {
 
 	/**
 	 * Find all.
@@ -30,7 +30,7 @@ public interface ProductDao extends PagingAndSortingRepository<Product, Integer>
 	 * @return the optional
 	 */
 	@Query(value = "SELECT * FROM products AS p WHERE p.user_Id = :userId AND p.id = :id", nativeQuery = true)
-	public Product findById(@Param("userId") String userId, @Param("id") long id);
+	public Product findById(@Param("userId") String userId, @Param("id") String id);
 
 	/**
 	 * Find by name.

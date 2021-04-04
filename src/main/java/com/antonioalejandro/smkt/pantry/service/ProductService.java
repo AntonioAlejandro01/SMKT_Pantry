@@ -29,7 +29,7 @@ public interface ProductService {
 	 * @return the optional
 	 * @throws ErrorService the error service
 	 */
-	public Optional<Product> productById(String userId, long id) throws ErrorService;
+	public Optional<Product> productById(String userId, String id) throws ErrorService;
 
 	/**
 	 * Search by filter.
@@ -71,7 +71,7 @@ public interface ProductService {
 	 * @return the optional
 	 * @throws ErrorService the error service
 	 */
-	public Optional<Product> putProduct(String userId, long id, ProductDTO product) throws ErrorService;
+	public Optional<Product> putProduct(String userId, String id, ProductDTO product) throws ErrorService;
 
 	/**
 	 * Adds the amount to product.
@@ -82,7 +82,7 @@ public interface ProductService {
 	 * @return the optional
 	 * @throws ErrorService the error service
 	 */
-	public void addAmountToProduct(String userId, long id, int amount) throws ErrorService;
+	public void addAmountToProduct(String userId, String id, int amount) throws ErrorService;
 
 	/**
 	 * Removes the amount to product.
@@ -93,7 +93,7 @@ public interface ProductService {
 	 * @return the http status
 	 * @throws ErrorService the error service
 	 */
-	public void removeAmountToProduct(String userId, long id, int amount) throws ErrorService;
+	public void removeAmountToProduct(String userId, String id, int amount) throws ErrorService;
 	
 	
 	/**
@@ -104,5 +104,5 @@ public interface ProductService {
 	 * @return the http status
 	 * @throws ErrorService the error service
 	 */
-	public void deleteProduct(String userId, long id) throws ErrorService;
+	public void deleteProduct(String userId, String id) throws ErrorService;
 }

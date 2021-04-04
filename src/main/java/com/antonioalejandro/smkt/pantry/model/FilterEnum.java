@@ -12,17 +12,17 @@ import lombok.Getter;
  * The Enum FilterEnum.
  */
 public enum FilterEnum {
-	
+
 	/** The name. */
-	NAME(1), 
- /** The category. */
- CATEGORY(2), 
- /** The codekey. */
- CODEKEY(3), 
- /** The price. */
- PRICE(4), 
- /** The amount. */
- AMOUNT(5);
+	NAME(1),
+	/** The category. */
+	CATEGORY(2),
+	/** The codekey. */
+	CODEKEY(3),
+	/** The price. */
+	PRICE(4),
+	/** The amount. */
+	AMOUNT(5);
 
 	/**
 	 * Gets the id.
@@ -48,7 +48,7 @@ public enum FilterEnum {
 	 * @return the filter enum
 	 * @throws ErrorService the error service
 	 */
-	public static FilterEnum fromName(String name) throws ErrorService{
+	public static FilterEnum fromName(String name) throws ErrorService {
 		FilterEnum filterEnum;
 
 		switch (name.toUpperCase()) {

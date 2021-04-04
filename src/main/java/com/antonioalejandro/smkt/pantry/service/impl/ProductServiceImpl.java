@@ -18,6 +18,7 @@ import com.antonioalejandro.smkt.pantry.model.Product;
 import com.antonioalejandro.smkt.pantry.model.dto.ProductDTO;
 import com.antonioalejandro.smkt.pantry.service.CategoryService;
 import com.antonioalejandro.smkt.pantry.service.ProductService;
+import com.antonioalejandro.smkt.pantry.utils.Utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -71,12 +72,12 @@ public class ProductServiceImpl implements ProductService {
 	 * Product by id.
 	 *
 	 * @param userId the user id
-	 * @param id the id
+	 * @param id     the id
 	 * @return the optional
 	 * @throws ErrorService the error service
 	 */
 	@Override
-	public Optional<Product> productById(String userId, long id) throws ErrorService {
+	public Optional<Product> productById(String userId, String id) throws ErrorService {
 		return Optional.ofNullable(repository.findById(userId, id));
 	}
 
@@ -85,7 +86,7 @@ public class ProductServiceImpl implements ProductService {
 	 *
 	 * @param userId the user id
 	 * @param filter the filter
-	 * @param value the value
+	 * @param value  the value
 	 * @return the optional
 	 * @throws ErrorService the error service
 	 */
@@ -100,7 +101,7 @@ public class ProductServiceImpl implements ProductService {
 	 * Gets the excel.
 	 *
 	 * @param userId the user id
-	 * @param token the token
+	 * @param token  the token
 	 * @return the excel
 	 * @throws ErrorService the error service
 	 */
@@ -114,8 +115,9 @@ public class ProductServiceImpl implements ProductService {
 		try (Response response = client.newCall(req).execute()) {
 			if (response.code() == HttpStatus.OK.value()) {
 				return Optional.of(response.body().byteStream().readAllBytes());
-			} else if (response.code() == HttpStatus.UNAUTHORIZED.value() || response.code() == HttpStatus.BAD_REQUEST.value()) {
-				log.debug("Message {}",response.body().string());
+			} else if (response.code() == HttpStatus.UNAUTHORIZED.value()
+					|| response.code() == HttpStatus.BAD_REQUEST.value()) {
+				log.debug("Message {}", response.body().string());
 				throw new ErrorService(HttpStatus.UNAUTHORIZED, "You can't do this operation or token is expired");
 			} else {
 				HttpStatus status = HttpStatus.valueOf(response.code());
@@ -130,7 +132,7 @@ public class ProductServiceImpl implements ProductService {
 	/**
 	 * Adds the product.
 	 *
-	 * @param userId the user id
+	 * @param userId  the user id
 	 * @param product the product
 	 * @return the optional
 	 * @throws ErrorService the error service
@@ -152,6 +154,8 @@ public class ProductServiceImpl implements ProductService {
 		productToSave.setName(product.getName());
 		productToSave.setPrice(product.getPrice());
 		productToSave.setUserId(userId);
+		// set id with uuid
+		productToSave.setId(Utils.generateUUID());
 
 		return Optional.ofNullable(repository.save(productToSave));
 	}
@@ -159,14 +163,14 @@ public class ProductServiceImpl implements ProductService {
 	/**
 	 * Put product.
 	 *
-	 * @param userId the user id
-	 * @param id the id
+	 * @param userId  the user id
+	 * @param id      the id
 	 * @param product the product
 	 * @return the optional
 	 * @throws ErrorService the error service
 	 */
 	@Override
-	public Optional<Product> putProduct(String userId, long id, ProductDTO product) throws ErrorService {
+	public Optional<Product> putProduct(String userId, String id, ProductDTO product) throws ErrorService {
 		Optional<Product> productSaved = Optional.of(repository.findById(userId, id));
 		if (productSaved.isEmpty()) {
 			throw new ErrorService(HttpStatus.FORBIDDEN, "The id is not valid or you haven't got grants");
@@ -194,12 +198,12 @@ public class ProductServiceImpl implements ProductService {
 	 * Adds the amount to product.
 	 *
 	 * @param userId the user id
-	 * @param id the id
+	 * @param id     the id
 	 * @param amount the amount
 	 * @throws ErrorService the error service
 	 */
 	@Override
-	public void addAmountToProduct(String userId, long id, int amount) throws ErrorService {
+	public void addAmountToProduct(String userId, String id, int amount) throws ErrorService {
 		Optional<Product> oProduct = Optional.ofNullable(repository.findById(userId, id));
 		if (oProduct.isEmpty()) {
 			throw new ErrorService(HttpStatus.FORBIDDEN, "The id is not valid or you haven't got grants");
@@ -220,12 +224,12 @@ public class ProductServiceImpl implements ProductService {
 	 * Removes the amount to product.
 	 *
 	 * @param userId the user id
-	 * @param id the id
+	 * @param id     the id
 	 * @param amount the amount
 	 * @throws ErrorService the error service
 	 */
 	@Override
-	public void removeAmountToProduct(String userId, long id, int amount) throws ErrorService {
+	public void removeAmountToProduct(String userId, String id, int amount) throws ErrorService {
 		Optional<Product> oProduct = Optional.ofNullable(repository.findById(userId, id));
 		if (oProduct.isEmpty()) {
 			throw new ErrorService(HttpStatus.FORBIDDEN, "The id is not valid or you haven't got grants");
@@ -236,7 +240,7 @@ public class ProductServiceImpl implements ProductService {
 		if (product.getAmount() - amount < 0) {
 			throw new ErrorService(HttpStatus.BAD_REQUEST, "The amount is not enough");
 		}
-		
+
 		product.setAmount(product.getAmount() - amount);
 
 		if (Optional.ofNullable(repository.save(product)).isEmpty()) {
@@ -249,11 +253,11 @@ public class ProductServiceImpl implements ProductService {
 	 * Delete product.
 	 *
 	 * @param userId the user id
-	 * @param id the id
+	 * @param id     the id
 	 * @throws ErrorService the error service
 	 */
 	@Override
-	public void deleteProduct(String userId, long id) throws ErrorService {
+	public void deleteProduct(String userId, String id) throws ErrorService {
 		Optional<Product> oProduct = Optional.ofNullable(repository.findById(userId, id));
 		if (oProduct.isEmpty()) {
 			throw new ErrorService(HttpStatus.FORBIDDEN, "The id is not valid or you haven't got grants");
