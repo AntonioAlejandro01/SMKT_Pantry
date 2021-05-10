@@ -13,8 +13,10 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertOneResult;
+import com.mongodb.client.result.UpdateResult;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -66,7 +68,7 @@ public class MongoDB implements PantryDatabase, Mappers {
     @Override
     public Optional<Product> findById(String id, String userId) {
 
-        return Optional.ofNullable(collection.find(defaultDocument(userId).append(KEY_ID, new ObjectId(id))).first())
+        return Optional.ofNullable(collection.find(defaultDocument(userId).append(KEY_ID, id)).first())
                 .map(this::documentToProduct);
     }
 
@@ -103,8 +105,8 @@ public class MongoDB implements PantryDatabase, Mappers {
      */
     @Override
     public Optional<List<Product>> findByCategory(String userId, int categoryId) {
-        // TODO Auto-generated method stub
-        return null;
+        Document query = defaultDocument(userId).append(String.format("%s.%s", CATEGORY, KEY_ID), categoryId);
+        return evaluateList(findList(query));
     }
 
     /**
@@ -120,18 +122,31 @@ public class MongoDB implements PantryDatabase, Mappers {
      * {@inheritDoc}
      */
     @Override
-    public Optional<Product> addAmountById(String userId, String id, int amount) {
-        // TODO Auto-generated method stub
-        return null;
+    public boolean addAmountById(String userId, String id, int amount) {
+        Document query = defaultDocument(userId).append(KEY_ID, id);
+        Document dataToUpdate = new Document("$inc", new Document(AMOUNT, amount));
+        return collection.updateOne(query, dataToUpdate).wasAcknowledged();
+
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Optional<Product> removeAmountById(String userId, String id, int amount) {
-        // TODO Auto-generated method stub
-        return null;
+    public boolean removeAmountById(String userId, String id, int amount) {
+        Optional<Product> product = findById(id, userId);
+        if (product.isEmpty()) {
+            return false;
+            // TODO: throw Error
+        }
+        if (product.get().getAmount() - amount < 0) {
+            return false;
+            // TODO: Throw ErrorService
+        }
+
+        Document query = defaultDocument(userId).append(KEY_ID, id);
+        Document update = new Document("$inc", new Document(AMOUNT, amount * -1));
+        return collection.updateOne(query, update).wasAcknowledged();
     }
 
     @Override
@@ -140,7 +155,8 @@ public class MongoDB implements PantryDatabase, Mappers {
         if (!result.wasAcknowledged()) {
             return Optional.empty();
         }
-        Document query = defaultDocument(product.getUserId()).append(KEY_ID, result.getInsertedId().asObjectId());
+        Document query = defaultDocument(product.getUserId()).append(KEY_ID,
+                result.getInsertedId().asString().toString());
         return Optional.ofNullable(documentToProduct(collection.find(query).first()));
     }
 

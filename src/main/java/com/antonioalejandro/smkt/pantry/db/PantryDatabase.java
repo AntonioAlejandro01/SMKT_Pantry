@@ -87,7 +87,7 @@ public interface PantryDatabase {
      * @param amount
      * @return
      */
-    public Optional<Product> addAmountById(String userId, String id, int amount);
+    public boolean addAmountById(String userId, String id, int amount);
 
     /**
      * Remove amount to one product. If the amount will be negative the amount
@@ -98,7 +98,7 @@ public interface PantryDatabase {
      * @param amount
      * @return
      */
-    public Optional<Product> removeAmountById(String userId, String id, int amount);
+    public boolean removeAmountById(String userId, String id, int amount);
 
     /**
      * Delete a Product by id
