@@ -1,4 +1,4 @@
-package com.antonioalejandro.smkt.pantry.model;
+package com.antonioalejandro.smkt.pantry.model.exceptions;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -16,15 +16,11 @@ import lombok.Data;
 import lombok.ToString;
 
 /**
- * To string.
+ * Error Service Exception
  *
- * @return the java.lang. string
- */
-
-/**
- * To string.
- *
- * @return the java.lang. string
+ * @author AntonioAlejandro01 - www.antonioalejandro.com
+ * @version 1.0.0
+ * @apiNote Error that can be produced in the services
  */
 @ToString
 public class ErrorService extends Exception {
@@ -35,14 +31,10 @@ public class ErrorService extends Exception {
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
 
-	/** The Constant JSON_TEMPLATE. */
-	private static final String JSON_TEMPLATE = "{\"timestamp\":%d,\"status\":%d,\"message\":\"%s\"}";
-
-	
 	/**
 	 * Instantiates a new error service.
 	 *
-	 * @param status the status
+	 * @param status  the status
 	 * @param message the message
 	 */
 	public ErrorService(HttpStatus status, String message) {
@@ -50,29 +42,27 @@ public class ErrorService extends Exception {
 	}
 
 	/**
-	 * Gets the json.
+	 * Create a {@link ResponseEntity} with error data
 	 *
-	 * @return the json
+	 * @return {@link ResponseEntity}
 	 */
-	private String getJSON() {
-		return String.format(JSON_TEMPLATE, error.getTimestamp(), error.getStatus().value(), error.getMessage());
+	public final ResponseEntity<String> toResponse() {
+		return ResponseEntity.status(error.getStatus())
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).body(error.toString());
 	}
 
 	/**
-	 * Gets the reponse.
-	 *
-	 * @return the reponse
+	 * Class for manage error in ErrorServiceClass
+	 * 
+	 * @author AntonioAlejandro01 - www.antonioalejandro.com
+	 * @version 1.0.0
+	 * @apiNote Save all data for the error and can be converted into JSON with
+	 *          method {@code toString()}
 	 */
-	public final ResponseEntity<String> getReponse() {
-		return ResponseEntity.status(error.getStatus())
-				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).body(getJSON());
-	}
-
-
 	@Data
 	@ApiModel(value = "Pantry Error", description = "Object that return when error ocurred")
 	public class JSONServiceError implements Serializable {
-		
+
 		/** The Constant serialVersionUID. */
 		@JsonIgnore
 		@ApiModelProperty(hidden = true)
@@ -90,6 +80,10 @@ public class ErrorService extends Exception {
 		@ApiModelProperty(dataType = "string", example = "1617545715", value = "the exact time when the error ocurred")
 		private final long timestamp;
 
+		/** The Constant JSON_TEMPLATE. */
+		@ApiModelProperty(hidden = true)
+		private static final String JSON_TEMPLATE = "{\"timestamp\":%d,\"status\":%d,\"message\":\"%s\"}";
+
 		/**
 		 * Instantiates a new JSON service error.
 		 *
@@ -100,6 +94,16 @@ public class ErrorService extends Exception {
 			this.message = message;
 			this.status = status;
 			this.timestamp = new Date().getTime();
+		}
+
+		/**
+		 * Convert Object into String (JSON)
+		 * 
+		 * @return {@link String} with her format is JSON
+		 */
+		@Override
+		public String toString() {
+			return String.format(JSON_TEMPLATE, timestamp, status, message);
 		}
 
 	}

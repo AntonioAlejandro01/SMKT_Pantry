@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
@@ -21,6 +22,7 @@ import lombok.Data;
  */
 @Builder
 @ApiModel(value = "Filter", description = "The filter value")
+@AllArgsConstructor
 public class Filter {
 
 	/** The id. */

@@ -5,21 +5,14 @@ import java.util.UUID;
 /**
  * The Class Utils.
  */
-public class Utils {
+public interface UUIDGenerator {
 
-	/**
-	 * Instantiates a new utils.
-	 */
-	private Utils() {
-		
-	}
-	
 	/**
 	 * Generate UUID.
 	 *
 	 * @return the string
 	 */
-	public static String generateUUID() {
+	default String generateUUID() {
 		return UUID.randomUUID().toString();
 	}
 }

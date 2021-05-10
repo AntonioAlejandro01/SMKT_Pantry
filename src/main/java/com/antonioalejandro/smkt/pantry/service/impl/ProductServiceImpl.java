@@ -10,15 +10,14 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import com.antonioalejandro.smkt.pantry.dao.ProductDao;
-import com.antonioalejandro.smkt.pantry.model.Category;
-import com.antonioalejandro.smkt.pantry.model.ErrorService;
-import com.antonioalejandro.smkt.pantry.model.FilterEnum;
+import com.antonioalejandro.smkt.pantry.db.PantryDatabase;
 import com.antonioalejandro.smkt.pantry.model.Product;
 import com.antonioalejandro.smkt.pantry.model.dto.ProductDTO;
-import com.antonioalejandro.smkt.pantry.service.CategoryService;
+import com.antonioalejandro.smkt.pantry.model.enums.CategoryEnum;
+import com.antonioalejandro.smkt.pantry.model.enums.FilterEnum;
+import com.antonioalejandro.smkt.pantry.model.exceptions.ErrorService;
 import com.antonioalejandro.smkt.pantry.service.ProductService;
-import com.antonioalejandro.smkt.pantry.utils.Utils;
+import com.antonioalejandro.smkt.pantry.utils.UUIDGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -30,13 +29,14 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
- * The Class ProductServiceImpl.
+ * The Class ProductServiceImpl. TODO: Adapt class for new Database TODO: Adapt
+ * for new CategoryEnum
  */
 @Service
 
 /** The Constant log. */
 @Slf4j
-public class ProductServiceImpl implements ProductService {
+public class ProductServiceImpl implements ProductService, UUIDGenerator {
 
 	/** The Constant HEADER_AUTH. */
 	private static final String HEADER_AUTH = "Authorization";
@@ -46,11 +46,7 @@ public class ProductServiceImpl implements ProductService {
 
 	/** The repository. */
 	@Autowired
-	private ProductDao repository;
-
-	/** The category service. */
-	@Autowired
-	private CategoryService categoryService;
+	private PantryDatabase db;
 
 	/** The discovery client. */
 	@Autowired
@@ -64,8 +60,8 @@ public class ProductServiceImpl implements ProductService {
 	 * @throws ErrorService the error service
 	 */
 	@Override
-	public Optional<List<Product>> allProducts(String userId) throws ErrorService {
-		return Optional.ofNullable(repository.findAll(userId));
+	public Optional<List<Product>> all(String userId) {
+		return db.findAll(userId);
 	}
 
 	/**
@@ -77,8 +73,8 @@ public class ProductServiceImpl implements ProductService {
 	 * @throws ErrorService the error service
 	 */
 	@Override
-	public Optional<Product> productById(String userId, String id) throws ErrorService {
-		return Optional.ofNullable(repository.findById(userId, id));
+	public Optional<Product> byId(String userId, String id) {
+		return db.findById(userId, id);
 	}
 
 	/**
@@ -91,9 +87,8 @@ public class ProductServiceImpl implements ProductService {
 	 * @throws ErrorService the error service
 	 */
 	@Override
-	public Optional<List<Product>> searchByFilter(String userId, String filter, String value) throws ErrorService {
-		return Optional
-				.ofNullable(FilterEnum.fromName(filter).getFunctionForSearch().search(userId, value, repository));
+	public Optional<List<Product>> byFilter(String userId, String filter, String value) throws ErrorService {
+		return FilterEnum.fromName(filter).getFunctionForSearch().search(userId, value, db);
 
 	}
 
@@ -138,26 +133,25 @@ public class ProductServiceImpl implements ProductService {
 	 * @throws ErrorService the error service
 	 */
 	@Override
-	public Optional<Product> addProduct(String userId, ProductDTO product) throws ErrorService {
+	public Optional<Product> add(String userId, ProductDTO product) throws ErrorService {
 
-		Optional<Category> oCategory = categoryService.getCategoryById(product.getCategory());
+		Optional<CategoryEnum> category = CategoryEnum.fromId(product.getCategory());
 
-		if (oCategory.isEmpty()) {
+		if (category.isEmpty()) {
 			throw new ErrorService(HttpStatus.BAD_REQUEST, "The category is not valid.");
 		}
-		Category category = oCategory.get();
 
 		Product productToSave = new Product();
 		productToSave.setAmount(product.getAmount());
-		productToSave.setCategory(category);
+		productToSave.setCategory(category.get().toCategory());
 		productToSave.setCodeKey(product.getCodeKey());
 		productToSave.setName(product.getName());
 		productToSave.setPrice(product.getPrice());
 		productToSave.setUserId(userId);
 		// set id with uuid
-		productToSave.setId(Utils.generateUUID());
+		productToSave.setId(generateUUID());
 
-		return Optional.ofNullable(repository.save(productToSave));
+		return db.insertProduct(productToSave);
 	}
 
 	/**
@@ -170,8 +164,8 @@ public class ProductServiceImpl implements ProductService {
 	 * @throws ErrorService the error service
 	 */
 	@Override
-	public Optional<Product> putProduct(String userId, String id, ProductDTO product) throws ErrorService {
-		Optional<Product> productSaved = Optional.of(repository.findById(userId, id));
+	public Optional<Product> update(String userId, String id, ProductDTO product) throws ErrorService {
+		Optional<Product> productSaved = db.findById(userId, id);
 		if (productSaved.isEmpty()) {
 			throw new ErrorService(HttpStatus.FORBIDDEN, "The id is not valid or you haven't got grants");
 		}
@@ -180,18 +174,18 @@ public class ProductServiceImpl implements ProductService {
 		// check category
 		if (product.getCategory() != productToUpdate.getCategory().getId()) {
 			// the category maybe can updated
-			Optional<Category> category = categoryService.getCategoryById(product.getCategory());
+			Optional<CategoryEnum> category = CategoryEnum.fromId(product.getCategory());
 			if (category.isEmpty()) {
 				throw new ErrorService(HttpStatus.BAD_REQUEST, "The category is not valid.");
 			}
-			productToUpdate.setCategory(category.get());
+			productToUpdate.setCategory(category.get().toCategory());
 		}
 		productToUpdate.setAmount(product.getAmount());
 		productToUpdate.setCodeKey(product.getCodeKey());
 		productToUpdate.setName(product.getName());
 		productToUpdate.setPrice(product.getPrice());
 
-		return Optional.ofNullable(repository.save(productToUpdate));
+		return db.insertProduct(productToUpdate);
 	}
 
 	/**
@@ -203,8 +197,8 @@ public class ProductServiceImpl implements ProductService {
 	 * @throws ErrorService the error service
 	 */
 	@Override
-	public void addAmountToProduct(String userId, String id, int amount) throws ErrorService {
-		Optional<Product> oProduct = Optional.ofNullable(repository.findById(userId, id));
+	public void addAmount(String userId, String id, int amount) throws ErrorService {
+		Optional<Product> oProduct = db.findById(userId, id);
 		if (oProduct.isEmpty()) {
 			throw new ErrorService(HttpStatus.FORBIDDEN, "The id is not valid or you haven't got grants");
 		}
@@ -213,7 +207,7 @@ public class ProductServiceImpl implements ProductService {
 
 		product.setAmount(product.getAmount() + amount);
 
-		if (Optional.ofNullable(repository.save(product)).isEmpty()) {
+		if (db.insertProduct(product).isEmpty()) {
 			throw new ErrorService(HttpStatus.INTERNAL_SERVER_ERROR,
 					HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
 		}
@@ -229,8 +223,8 @@ public class ProductServiceImpl implements ProductService {
 	 * @throws ErrorService the error service
 	 */
 	@Override
-	public void removeAmountToProduct(String userId, String id, int amount) throws ErrorService {
-		Optional<Product> oProduct = Optional.ofNullable(repository.findById(userId, id));
+	public void removeAmount(String userId, String id, int amount) throws ErrorService {
+		Optional<Product> oProduct = db.findById(userId, id);
 		if (oProduct.isEmpty()) {
 			throw new ErrorService(HttpStatus.FORBIDDEN, "The id is not valid or you haven't got grants");
 		}
@@ -243,7 +237,7 @@ public class ProductServiceImpl implements ProductService {
 
 		product.setAmount(product.getAmount() - amount);
 
-		if (Optional.ofNullable(repository.save(product)).isEmpty()) {
+		if (db.insertProduct(product).isEmpty()) {
 			throw new ErrorService(HttpStatus.INTERNAL_SERVER_ERROR,
 					HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
 		}
@@ -257,12 +251,12 @@ public class ProductServiceImpl implements ProductService {
 	 * @throws ErrorService the error service
 	 */
 	@Override
-	public void deleteProduct(String userId, String id) throws ErrorService {
-		Optional<Product> oProduct = Optional.ofNullable(repository.findById(userId, id));
+	public void delete(String userId, String id) throws ErrorService {
+		Optional<Product> oProduct = db.findById(userId, id);
 		if (oProduct.isEmpty()) {
 			throw new ErrorService(HttpStatus.FORBIDDEN, "The id is not valid or you haven't got grants");
 		}
-		repository.delete(oProduct.get());
+		db.deleteProduct(userId, id);
 	}
 
 	/**
@@ -273,7 +267,7 @@ public class ProductServiceImpl implements ProductService {
 	 * @throws ErrorService the error service
 	 */
 	private String getBodyForExcel(String userId) throws ErrorService {
-		Optional<List<Product>> products = allProducts(userId);
+		Optional<List<Product>> products = all(userId);
 		if (products.isEmpty() || products.get().isEmpty()) {
 			throw new ErrorService(HttpStatus.NO_CONTENT,
 					String.format("The user %s haven't got any products", userId));

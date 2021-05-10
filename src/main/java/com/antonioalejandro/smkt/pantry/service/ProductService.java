@@ -3,9 +3,9 @@ package com.antonioalejandro.smkt.pantry.service;
 import java.util.List;
 import java.util.Optional;
 
-import com.antonioalejandro.smkt.pantry.model.ErrorService;
 import com.antonioalejandro.smkt.pantry.model.Product;
 import com.antonioalejandro.smkt.pantry.model.dto.ProductDTO;
+import com.antonioalejandro.smkt.pantry.model.exceptions.ErrorService;
 
 /**
  * The Interface ProductService.
@@ -19,7 +19,7 @@ public interface ProductService {
 	 * @return the list
 	 * @throws ErrorService the error service
 	 */
-	public Optional<List<Product>> allProducts(String userId) throws ErrorService;
+	public Optional<List<Product>> all(String userId);
 
 	/**
 	 * Product by id.
@@ -29,7 +29,7 @@ public interface ProductService {
 	 * @return the optional
 	 * @throws ErrorService the error service
 	 */
-	public Optional<Product> productById(String userId, String id) throws ErrorService;
+	public Optional<Product> byId(String userId, String id);
 
 	/**
 	 * Search by filter.
@@ -40,13 +40,13 @@ public interface ProductService {
 	 * @return the optional
 	 * @throws ErrorService the error service
 	 */
-	public Optional<List<Product>> searchByFilter(String userId, String filter, String value) throws ErrorService;
+	public Optional<List<Product>> byFilter(String userId, String filter, String value) throws ErrorService;
 
 	/**
 	 * Gets the excel.
 	 *
 	 * @param userId the user id
-	 * @param token the token
+	 * @param token  the token
 	 * @return the excel
 	 * @throws ErrorService the error service
 	 */
@@ -60,7 +60,7 @@ public interface ProductService {
 	 * @return the optional
 	 * @throws ErrorService the error service
 	 */
-	public Optional<Product> addProduct(String userId, ProductDTO product) throws ErrorService;
+	public Optional<Product> add(String userId, ProductDTO product) throws ErrorService;
 
 	/**
 	 * Put product.
@@ -71,38 +71,37 @@ public interface ProductService {
 	 * @return the optional
 	 * @throws ErrorService the error service
 	 */
-	public Optional<Product> putProduct(String userId, String id, ProductDTO product) throws ErrorService;
+	public Optional<Product> update(String userId, String id, ProductDTO product) throws ErrorService;
 
 	/**
 	 * Adds the amount to product.
 	 *
 	 * @param userId the user id
-	 * @param id the id
+	 * @param id     the id
 	 * @param amount the amount
 	 * @return the optional
 	 * @throws ErrorService the error service
 	 */
-	public void addAmountToProduct(String userId, String id, int amount) throws ErrorService;
+	public void addAmount(String userId, String id, int amount) throws ErrorService;
 
 	/**
 	 * Removes the amount to product.
 	 *
 	 * @param userId the user id
-	 * @param id the id
+	 * @param id     the id
 	 * @param amount the amount
 	 * @return the http status
 	 * @throws ErrorService the error service
 	 */
-	public void removeAmountToProduct(String userId, String id, int amount) throws ErrorService;
-	
-	
+	public void removeAmount(String userId, String id, int amount) throws ErrorService;
+
 	/**
 	 * Delete product.
 	 *
 	 * @param userId the user id
-	 * @param id the id
+	 * @param id     the id
 	 * @return the http status
 	 * @throws ErrorService the error service
 	 */
-	public void deleteProduct(String userId, String id) throws ErrorService;
+	public void delete(String userId, String id) throws ErrorService;
 }
