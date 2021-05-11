@@ -3,8 +3,8 @@ package com.antonioalejandro.smkt.pantry.db;
 import java.util.List;
 import java.util.Optional;
 
-import com.antonioalejandro.smkt.pantry.model.Category;
 import com.antonioalejandro.smkt.pantry.model.Product;
+import com.antonioalejandro.smkt.pantry.model.exceptions.PantryDatabaseException;
 
 public interface PantryDatabase {
 
@@ -96,9 +96,10 @@ public interface PantryDatabase {
      * @param userId
      * @param id
      * @param amount
+     * @throws PantryDatabaseException
      * @return
      */
-    public boolean removeAmountById(String userId, String id, int amount);
+    public boolean removeAmountById(String userId, String id, int amount) throws PantryDatabaseException;
 
     /**
      * Delete a Product by id

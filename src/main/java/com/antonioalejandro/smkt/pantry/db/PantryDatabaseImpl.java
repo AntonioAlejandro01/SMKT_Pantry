@@ -1,30 +1,30 @@
 package com.antonioalejandro.smkt.pantry.db;
 
 import java.util.ArrayList;
-import java.util.Collection;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.antonioalejandro.smkt.pantry.model.Product;
+import com.antonioalejandro.smkt.pantry.model.exceptions.PantryDatabaseException;
 import com.antonioalejandro.smkt.pantry.utils.Mappers;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertOneResult;
-import com.mongodb.client.result.UpdateResult;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.springframework.http.HttpStatus;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Mongo DB Class TODO: Methods not implemented
+ * Implementation for Pantry Database interface
  * 
  * @author AntonioAlejandro01 - www.antonioalejandro.com
  * @version 1.0.0
@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
  * @apiNote Class that manage product database
  */
 @Slf4j
-public class MongoDB implements PantryDatabase, Mappers {
+public class PantryDatabaseImpl implements PantryDatabase, Mappers {
 
     private MongoCollection<Document> collection;
     private Function<List<Product>, Consumer<Document>> createConsumerForMongoIteratorToList;
@@ -44,7 +44,7 @@ public class MongoDB implements PantryDatabase, Mappers {
      * @param database         database name
      * @param schema           schema name
      */
-    public MongoDB(String connectionString, String database, String schema) {
+    public PantryDatabaseImpl(String connectionString, String database, String schema) {
         log.info("ConnectionString {}", connectionString);
         MongoClient client = MongoClients.create(connectionString);
         MongoDatabase db = client.getDatabase(database);
@@ -131,17 +131,18 @@ public class MongoDB implements PantryDatabase, Mappers {
 
     /**
      * {@inheritDoc}
+     * 
+     * @throws PantryDatabaseException
      */
     @Override
-    public boolean removeAmountById(String userId, String id, int amount) {
+    public boolean removeAmountById(String userId, String id, int amount) throws PantryDatabaseException {
         Optional<Product> product = findById(id, userId);
         if (product.isEmpty()) {
-            return false;
-            // TODO: throw Error
+            throw new PantryDatabaseException("The id is not valid.", HttpStatus.NOT_FOUND);
+
         }
         if (product.get().getAmount() - amount < 0) {
-            return false;
-            // TODO: Throw ErrorService
+            throw new PantryDatabaseException("The final amount can't be negative", HttpStatus.FORBIDDEN);
         }
 
         Document query = defaultDocument(userId).append(KEY_ID, id);

@@ -42,6 +42,17 @@ public class ErrorService extends Exception {
 	}
 
 	/**
+	 * Instantiates a new error service.
+	 *
+	 * @param status    the status
+	 * @param message   the message
+	 * @param timestamp the timestamp
+	 */
+	public ErrorService(HttpStatus status, String message, long timestamp) {
+		this.error = new JSONServiceError(status, message, timestamp);
+	}
+
+	/**
 	 * Create a {@link ResponseEntity} with error data
 	 *
 	 * @return {@link ResponseEntity}
@@ -94,6 +105,19 @@ public class ErrorService extends Exception {
 			this.message = message;
 			this.status = status;
 			this.timestamp = new Date().getTime();
+		}
+
+		/**
+		 * Instantiates a new JSON service error.
+		 *
+		 * @param status    the status
+		 * @param message   the message
+		 * @param timestamp the timestamp
+		 */
+		public JSONServiceError(HttpStatus status, String message, long timestamp) {
+			this.message = message;
+			this.status = status;
+			this.timestamp = timestamp;
 		}
 
 		/**

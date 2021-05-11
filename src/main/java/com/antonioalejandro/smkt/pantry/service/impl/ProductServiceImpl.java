@@ -16,6 +16,7 @@ import com.antonioalejandro.smkt.pantry.model.dto.ProductDTO;
 import com.antonioalejandro.smkt.pantry.model.enums.CategoryEnum;
 import com.antonioalejandro.smkt.pantry.model.enums.FilterEnum;
 import com.antonioalejandro.smkt.pantry.model.exceptions.ErrorService;
+import com.antonioalejandro.smkt.pantry.model.exceptions.PantryDatabaseException;
 import com.antonioalejandro.smkt.pantry.service.ProductService;
 import com.antonioalejandro.smkt.pantry.utils.UUIDGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -224,23 +225,17 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 	 */
 	@Override
 	public void removeAmount(String userId, String id, int amount) throws ErrorService {
-		Optional<Product> oProduct = db.findById(userId, id);
-		if (oProduct.isEmpty()) {
-			throw new ErrorService(HttpStatus.FORBIDDEN, "The id is not valid or you haven't got grants");
+		boolean isUpdated;
+		try {
+			isUpdated = db.removeAmountById(userId, id, amount);
+		} catch (PantryDatabaseException e) {
+			log.error("RemoveAmount Error:  {}", e);
+			throw new ErrorService(e.getStatus(), e.getMsg(), e.getTimestamp());
+		}
+		if (!isUpdated) {
+			throw new ErrorService(HttpStatus.FORBIDDEN, "Can't be updated the amount");
 		}
 
-		Product product = oProduct.get();
-
-		if (product.getAmount() - amount < 0) {
-			throw new ErrorService(HttpStatus.BAD_REQUEST, "The amount is not enough");
-		}
-
-		product.setAmount(product.getAmount() - amount);
-
-		if (db.insertProduct(product).isEmpty()) {
-			throw new ErrorService(HttpStatus.INTERNAL_SERVER_ERROR,
-					HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
-		}
 	}
 
 	/**

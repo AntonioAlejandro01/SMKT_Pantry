@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.antonioalejandro.smkt.pantry.db.MongoDB;
+import com.antonioalejandro.smkt.pantry.db.PantryDatabaseImpl;
 import com.antonioalejandro.smkt.pantry.service.TokenService;
 import com.antonioalejandro.smkt.pantry.service.impl.TokenServiceImpl;
 
@@ -40,11 +40,11 @@ public class PersistentContext {
 	/**
 	 * MongoDB Bean
 	 * 
-	 * @return {@link MongoDB}
+	 * @return {@link PantryDatabaseImpl}
 	 */
 	@Bean
-	public MongoDB mongoDB() {
-		return new MongoDB(connectionString, databaseName, databaseSchema);
+	public PantryDatabaseImpl pantryDatabaseImpl() {
+		return new PantryDatabaseImpl(connectionString, databaseName, databaseSchema);
 	}
 
 }

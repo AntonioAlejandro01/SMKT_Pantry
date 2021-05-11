@@ -21,3 +21,6 @@ mongodb:
   database:
     name: smkt_pantry
     schema: products
+
+id_files_instance: smkt-files
+id_oauth_instance: smkt-oauth

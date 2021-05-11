@@ -1,6 +1,5 @@
 package com.antonioalejandro.smkt.pantry.config;
 
-import org.bouncycastle.jcajce.provider.symmetric.DES;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
