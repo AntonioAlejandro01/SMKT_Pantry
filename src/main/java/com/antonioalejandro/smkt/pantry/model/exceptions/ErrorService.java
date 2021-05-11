@@ -127,7 +127,8 @@ public class ErrorService extends Exception {
 		 */
 		@Override
 		public String toString() {
-			return String.format(JSON_TEMPLATE, timestamp, status, message);
+
+			return String.format(JSON_TEMPLATE, timestamp, status.value(), message);
 		}
 
 	}

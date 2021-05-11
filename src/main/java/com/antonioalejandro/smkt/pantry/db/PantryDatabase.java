@@ -28,20 +28,20 @@ public interface PantryDatabase {
     /**
      * Find a Product by id
      * 
-     * @param id     {@link String}
      * @param userId {@link String}
+     * @param id     {@link String}
      * @return {@link Optional}&lt;{@link Product}&gt;
      */
-    public Optional<Product> findById(String id, String userId);
+    public Optional<Product> findById(String userId, String id);
 
     /**
      * Find Products that her name contains a name
      * 
-     * @param name   {@link String}
      * @param userId {@link String}
+     * @param name   {@link String}
      * @return {@link Optional}&lt;{@link List}&lt;{@link Product}&gt;&gt;
      */
-    public Optional<List<Product>> findByName(String name, String userId);
+    public Optional<List<Product>> findByName(String userId, String name);
 
     /**
      * Find Product by CodeKey
@@ -87,7 +87,7 @@ public interface PantryDatabase {
      * @param amount
      * @return
      */
-    public boolean addAmountById(String userId, String id, int amount);
+    public boolean addAmountById(String userId, String id, int amount) throws PantryDatabaseException;
 
     /**
      * Remove amount to one product. If the amount will be negative the amount
@@ -109,5 +109,15 @@ public interface PantryDatabase {
      * @return
      */
     public boolean deleteProduct(String userId, String id);
+
+    /**
+     * Update a Product
+     * 
+     * @param userId
+     * @param id
+     * @param product
+     * @return
+     */
+    public Optional<Product> updateProduct(String userId, String id, Product product) throws PantryDatabaseException;
 
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.http.HttpStatus;
@@ -30,12 +31,14 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
- * The Class ProductServiceImpl. TODO: Adapt class for new Database TODO: Adapt
- * for new CategoryEnum
+ * The Class ProductServiceImpl.
+ * 
+ * @author AntonioAlejandro01 - www.antonioalejandro.com
+ * @see ProductService
+ * @see UUIDGenerator
+ * @version 1.0.0
  */
 @Service
-
-/** The Constant log. */
 @Slf4j
 public class ProductServiceImpl implements ProductService, UUIDGenerator {
 
@@ -52,6 +55,9 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 	/** The discovery client. */
 	@Autowired
 	private DiscoveryClient discoveryClient;
+
+	@Value("${id_files_instance}")
+	private String idFileInstance;
 
 	/**
 	 * All products.
@@ -166,27 +172,25 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 	 */
 	@Override
 	public Optional<Product> update(String userId, String id, ProductDTO product) throws ErrorService {
-		Optional<Product> productSaved = db.findById(userId, id);
-		if (productSaved.isEmpty()) {
-			throw new ErrorService(HttpStatus.FORBIDDEN, "The id is not valid or you haven't got grants");
+
+		Product productToUpdate = new Product();
+		// the category maybe can updated
+		Optional<CategoryEnum> category = CategoryEnum.fromId(product.getCategory());
+		if (category.isEmpty()) {
+			throw new ErrorService(HttpStatus.BAD_REQUEST, "The category is not valid.");
 		}
-		// the product exists and have permissions
-		Product productToUpdate = productSaved.get();
-		// check category
-		if (product.getCategory() != productToUpdate.getCategory().getId()) {
-			// the category maybe can updated
-			Optional<CategoryEnum> category = CategoryEnum.fromId(product.getCategory());
-			if (category.isEmpty()) {
-				throw new ErrorService(HttpStatus.BAD_REQUEST, "The category is not valid.");
-			}
-			productToUpdate.setCategory(category.get().toCategory());
-		}
+		productToUpdate.setCategory(category.get().toCategory());
 		productToUpdate.setAmount(product.getAmount());
 		productToUpdate.setCodeKey(product.getCodeKey());
 		productToUpdate.setName(product.getName());
 		productToUpdate.setPrice(product.getPrice());
+		productToUpdate.setUserId(userId);
 
-		return db.insertProduct(productToUpdate);
+		try {
+			return db.updateProduct(userId, id, productToUpdate);
+		} catch (PantryDatabaseException e) {
+			throw new ErrorService(e.getStatus(), e.getMessage(), e.getTimestamp());
+		}
 	}
 
 	/**
@@ -199,18 +203,15 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 	 */
 	@Override
 	public void addAmount(String userId, String id, int amount) throws ErrorService {
-		Optional<Product> oProduct = db.findById(userId, id);
-		if (oProduct.isEmpty()) {
-			throw new ErrorService(HttpStatus.FORBIDDEN, "The id is not valid or you haven't got grants");
+		boolean isUpdated;
+		try {
+			isUpdated = db.addAmountById(userId, id, amount);
+		} catch (PantryDatabaseException e) {
+			log.error("RemoveAmount Error:  {}", e);
+			throw new ErrorService(e.getStatus(), e.getMsg(), e.getTimestamp());
 		}
-
-		Product product = oProduct.get();
-
-		product.setAmount(product.getAmount() + amount);
-
-		if (db.insertProduct(product).isEmpty()) {
-			throw new ErrorService(HttpStatus.INTERNAL_SERVER_ERROR,
-					HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
+		if (!isUpdated) {
+			throw new ErrorService(HttpStatus.FORBIDDEN, "The id is not valid or you haven't got grants");
 		}
 
 	}
@@ -247,9 +248,9 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 	 */
 	@Override
 	public void delete(String userId, String id) throws ErrorService {
-		Optional<Product> oProduct = db.findById(userId, id);
-		if (oProduct.isEmpty()) {
-			throw new ErrorService(HttpStatus.FORBIDDEN, "The id is not valid or you haven't got grants");
+		boolean wasDeleted = db.deleteProduct(userId, id);
+		if (!wasDeleted) {
+			throw new ErrorService(HttpStatus.FORBIDDEN, "The product can't be deleted");
 		}
 		db.deleteProduct(userId, id);
 	}
@@ -282,7 +283,7 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 	 * @return the url
 	 */
 	private String getUrl() {
-		ServiceInstance instanceInfo = discoveryClient.getInstances("smkt-files").get(0);
+		ServiceInstance instanceInfo = discoveryClient.getInstances(idFileInstance).get(0);
 		return String.format(TEMPLATE_URL, instanceInfo.getHost(), instanceInfo.getPort());
 	}
 

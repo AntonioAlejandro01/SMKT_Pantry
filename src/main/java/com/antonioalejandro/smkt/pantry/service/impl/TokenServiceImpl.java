@@ -26,6 +26,7 @@ public class TokenServiceImpl implements TokenService {
 	/** The discovery client. */
 	@Autowired
 	private DiscoveryClient discoveryClient;
+
 	@Value("${id_oauth_instance}")
 	private String idOauthInstance;
 

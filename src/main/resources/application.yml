@@ -6,7 +6,7 @@ spring:
     name: smkt-pantry
 
 server:
-  port: 4080
+  port: 4070
 
 eureka:
   instance:

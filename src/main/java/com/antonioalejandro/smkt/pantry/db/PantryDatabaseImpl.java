@@ -18,7 +18,6 @@ import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertOneResult;
 
 import org.bson.Document;
-import org.bson.types.ObjectId;
 import org.springframework.http.HttpStatus;
 
 import lombok.extern.slf4j.Slf4j;
@@ -66,7 +65,7 @@ public class PantryDatabaseImpl implements PantryDatabase, Mappers {
      * {@inheritDoc}
      */
     @Override
-    public Optional<Product> findById(String id, String userId) {
+    public Optional<Product> findById(String userId, String id) {
 
         return Optional.ofNullable(collection.find(defaultDocument(userId).append(KEY_ID, id)).first())
                 .map(this::documentToProduct);
@@ -76,8 +75,8 @@ public class PantryDatabaseImpl implements PantryDatabase, Mappers {
      * {@inheritDoc}
      */
     @Override
-    public Optional<List<Product>> findByName(String name, String userId) {
-        Document query = defaultDocument(userId).append(NAME, new Document("$regex", name));
+    public Optional<List<Product>> findByName(String userId, String name) {
+        Document query = defaultDocument(userId).append(NAME, new Document("$regex", name).append("$options", "i"));
         return evaluateList(findList(query));
 
     }
@@ -86,7 +85,7 @@ public class PantryDatabaseImpl implements PantryDatabase, Mappers {
      * {@inheritDoc}
      */
     @Override
-    public Optional<Product> findByCodeKey(String codeKey, String userId) {
+    public Optional<Product> findByCodeKey(String userId, String codeKey) {
         return Optional.ofNullable(collection.find(defaultDocument(userId).append(CODE_KEY, codeKey)).first())
                 .map(this::documentToProduct);
     }
@@ -122,10 +121,15 @@ public class PantryDatabaseImpl implements PantryDatabase, Mappers {
      * {@inheritDoc}
      */
     @Override
-    public boolean addAmountById(String userId, String id, int amount) {
+    public boolean addAmountById(String userId, String id, int amount) throws PantryDatabaseException {
+        Optional<Product> product = findById(userId, id);
+        if (product.isEmpty()) {
+            throw new PantryDatabaseException("The id is not valid.", HttpStatus.NOT_FOUND);
+
+        }
         Document query = defaultDocument(userId).append(KEY_ID, id);
         Document dataToUpdate = new Document("$inc", new Document(AMOUNT, amount));
-        return collection.updateOne(query, dataToUpdate).wasAcknowledged();
+        return collection.updateOne(query, dataToUpdate).getModifiedCount() > 0;
 
     }
 
@@ -136,7 +140,7 @@ public class PantryDatabaseImpl implements PantryDatabase, Mappers {
      */
     @Override
     public boolean removeAmountById(String userId, String id, int amount) throws PantryDatabaseException {
-        Optional<Product> product = findById(id, userId);
+        Optional<Product> product = findById(userId, id);
         if (product.isEmpty()) {
             throw new PantryDatabaseException("The id is not valid.", HttpStatus.NOT_FOUND);
 
@@ -147,7 +151,7 @@ public class PantryDatabaseImpl implements PantryDatabase, Mappers {
 
         Document query = defaultDocument(userId).append(KEY_ID, id);
         Document update = new Document("$inc", new Document(AMOUNT, amount * -1));
-        return collection.updateOne(query, update).wasAcknowledged();
+        return collection.updateOne(query, update).getModifiedCount() > 0;
     }
 
     @Override
@@ -157,16 +161,28 @@ public class PantryDatabaseImpl implements PantryDatabase, Mappers {
             return Optional.empty();
         }
         Document query = defaultDocument(product.getUserId()).append(KEY_ID,
-                result.getInsertedId().asString().toString());
+                result.getInsertedId().asString().getValue());
         return Optional.ofNullable(documentToProduct(collection.find(query).first()));
     }
 
     @Override
     public boolean deleteProduct(String userId, String id) {
-        Document query = defaultDocument(userId).append(KEY_ID, new ObjectId(id));
+        Document query = defaultDocument(userId).append(KEY_ID, id);
         DeleteResult result = collection.deleteOne(query);
-        return result.wasAcknowledged();
+        return result.getDeletedCount() > 0;
 
+    }
+
+    @Override
+    public Optional<Product> updateProduct(String userId, String id, Product product) throws PantryDatabaseException {
+        Document query = defaultDocument(userId).append(KEY_ID, id);
+        Document dProduct = productToDocument(product);
+        dProduct.remove(KEY_ID);
+        Document update = new Document("$set", dProduct);
+        if (collection.updateOne(query, update).getModifiedCount() == 0) {
+            throw new PantryDatabaseException("The product can't be updated", HttpStatus.FORBIDDEN);
+        }
+        return findById(userId, id);
     }
 
     /**
