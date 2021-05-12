@@ -102,7 +102,7 @@ public enum FilterEnum {
 		OperationSearchProduct operationSearch = null;
 		switch (this) {
 			case NAME:
-				operationSearch = (userId, value, db) -> db.findByName(value, userId);
+				operationSearch = (userId, value, db) -> db.findByName(userId, value);
 				break;
 			case AMOUNT:
 				operationSearch = (userId, value, db) -> {
