@@ -16,11 +16,15 @@ eureka:
       defaultZone: http://localhost:8761/eureka
     fetchRegistry: true
 
+logging:
+  level:
+    '[com.antonioalejandro]': DEBUG
+
 mongodb:
   connection: mongodb://root:secret@localhost:27017/
   database:
     name: smkt_pantry
-    schema: products
+    collection: products
 
 id_files_instance: smkt-files
 id_oauth_instance: smkt-oauth

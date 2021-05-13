@@ -68,6 +68,7 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 	 */
 	@Override
 	public Optional<List<Product>> all(String userId) {
+		log.info("---> ProductService-----findAll---- userId: {}", userId);
 		return db.findAll(userId);
 	}
 
@@ -81,6 +82,7 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 	 */
 	@Override
 	public Optional<Product> byId(String userId, String id) {
+		log.info("---> ProductService-----findById---- userId: {}, id: {}", userId, id);
 		return db.findById(userId, id);
 	}
 
@@ -95,6 +97,7 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 	 */
 	@Override
 	public Optional<List<Product>> byFilter(String userId, String filter, String value) throws ErrorService {
+		log.info("---> ProductService-----findByFilter---- userId: {}, filter: {}, value: {}", userId, filter, value);
 		return FilterEnum.fromName(filter).getFunctionForSearch().search(userId, value, db);
 
 	}
@@ -109,19 +112,25 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 	 */
 	@Override
 	public Optional<byte[]> getExcel(String userId, String token) throws ErrorService {
+		log.info("---> ProductService-----getExcel---- userId: {}, token: {}", userId, token);
 		OkHttpClient client = new OkHttpClient();
 		RequestBody body = RequestBody.create(getBodyForExcel(userId),
 				MediaType.parse("application/json; charset=utf-8"));
+		log.debug("getExcel-----CREATE BODY_REQUEST");
 		Request req = new Request.Builder().url(getUrl()).post(body).addHeader(HEADER_AUTH, token).build();
-
+		log.debug("getExcel-----CREATE REQUEST");
 		try (Response response = client.newCall(req).execute()) {
+			log.info("Call Response success");
 			if (response.code() == HttpStatus.OK.value()) {
+				log.info("getExcel----RESPONSE CALL STATUS OK");
 				return Optional.of(response.body().byteStream().readAllBytes());
 			} else if (response.code() == HttpStatus.UNAUTHORIZED.value()
 					|| response.code() == HttpStatus.BAD_REQUEST.value()) {
-				log.debug("Message {}", response.body().string());
+				log.error("getExcel-----RESPONSE CALL STATUS {}", response.code());
+				log.debug("getExcel-----Message {}", response.body().string());
 				throw new ErrorService(HttpStatus.UNAUTHORIZED, "You can't do this operation or token is expired");
 			} else {
+				log.error("getExcel-----RESPONSE STATUS ERROR {}", response.code());
 				HttpStatus status = HttpStatus.valueOf(response.code());
 				throw new ErrorService(status, status.getReasonPhrase());
 			}
@@ -141,10 +150,11 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 	 */
 	@Override
 	public Optional<Product> add(String userId, ProductDTO product) throws ErrorService {
-
+		log.info("add-----userId: {}, product: {}", userId, product);
 		Optional<CategoryEnum> category = CategoryEnum.fromId(product.getCategory());
 
 		if (category.isEmpty()) {
+			log.warn("The category id is not valid");
 			throw new ErrorService(HttpStatus.BAD_REQUEST, "The category is not valid.");
 		}
 
@@ -172,11 +182,13 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 	 */
 	@Override
 	public Optional<Product> update(String userId, String id, ProductDTO product) throws ErrorService {
+		log.info("update-----userId: {}, id:{} ,product: {}", userId, id, product);
 
 		Product productToUpdate = new Product();
 		// the category maybe can updated
 		Optional<CategoryEnum> category = CategoryEnum.fromId(product.getCategory());
 		if (category.isEmpty()) {
+			log.warn("The category id is not valid");
 			throw new ErrorService(HttpStatus.BAD_REQUEST, "The category is not valid.");
 		}
 		productToUpdate.setCategory(category.get().toCategory());
@@ -189,6 +201,7 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 		try {
 			return db.updateProduct(userId, id, productToUpdate);
 		} catch (PantryDatabaseException e) {
+			log.error("update: msg: {} e: {}", e.getMessage(), e);
 			throw new ErrorService(e.getStatus(), e.getMessage(), e.getTimestamp());
 		}
 	}
@@ -207,7 +220,7 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 		try {
 			isUpdated = db.addAmountById(userId, id, amount);
 		} catch (PantryDatabaseException e) {
-			log.error("RemoveAmount Error:  {}", e);
+			log.error("AddAmount Error:  {}", e);
 			throw new ErrorService(e.getStatus(), e.getMsg(), e.getTimestamp());
 		}
 		if (!isUpdated) {
@@ -226,6 +239,7 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 	 */
 	@Override
 	public void removeAmount(String userId, String id, int amount) throws ErrorService {
+		log.info(" ---> ProductService------ removeAmount--userId: {}, id: {}, amount: {}", userId, id, amount);
 		boolean isUpdated;
 		try {
 			isUpdated = db.removeAmountById(userId, id, amount);
@@ -248,8 +262,10 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 	 */
 	@Override
 	public void delete(String userId, String id) throws ErrorService {
+		log.info(" ---> ProductService------ delete--userId: {}, id: {}", userId, id);
 		boolean wasDeleted = db.deleteProduct(userId, id);
 		if (!wasDeleted) {
+			log.error("delete----THE PRODUCT CAN'T BE DELETED");
 			throw new ErrorService(HttpStatus.FORBIDDEN, "The product can't be deleted");
 		}
 		db.deleteProduct(userId, id);
@@ -265,6 +281,7 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 	private String getBodyForExcel(String userId) throws ErrorService {
 		Optional<List<Product>> products = all(userId);
 		if (products.isEmpty() || products.get().isEmpty()) {
+			log.warn("The user {} doesn't have products");
 			throw new ErrorService(HttpStatus.NO_CONTENT,
 					String.format("The user %s haven't got any products", userId));
 		}
@@ -282,8 +299,12 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 	 *
 	 * @return the url
 	 */
-	private String getUrl() {
-		ServiceInstance instanceInfo = discoveryClient.getInstances(idFileInstance).get(0);
+	private String getUrl() throws ErrorService{
+		List<ServiceInstance> services = discoveryClient.getInstances(idFileInstance);
+		if (services.isEmpty()) {
+			throw new ErrorService(HttpStatus.SERVICE_UNAVAILABLE, "the service for files is unavailable now, try later O.o!");
+		}
+		ServiceInstance instanceInfo = services.get(0); 
 		return String.format(TEMPLATE_URL, instanceInfo.getHost(), instanceInfo.getPort());
 	}
 

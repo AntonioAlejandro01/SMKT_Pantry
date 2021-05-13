@@ -26,10 +26,11 @@ public class SwaggerConfig {
 	private static final String LICENSE = "MIT License";
 	private static final String VERSION = "1.0.0";
 	private static final String TITLE = "SMKT_Pantry";
-	private static final String DESCRIPTION = "";
+	private static final String DESCRIPTION = "MS for manage all products";
 	private static final String NAME = "Antonio Alejandro";
 	private static final String URL = "www.antonioalejandro.com";
 	private static final String EMAIL = "";
+	private static final String BASE_PACKAGE = "com.antonioalejandro.smkt.pantry.web";
 
 	/**
 	 * Users api.
@@ -39,7 +40,7 @@ public class SwaggerConfig {
 	@Bean
 	public Docket usersApi() {
 		return new Docket(DocumentationType.SWAGGER_2).apiInfo(usersApiInfo()).select().paths(PathSelectors.any())
-				.apis(RequestHandlerSelectors.basePackage("com.antonioalejandro.smkt.pantry.web")).build();
+				.apis(RequestHandlerSelectors.basePackage(BASE_PACKAGE)).build();
 	}
 
 	/**

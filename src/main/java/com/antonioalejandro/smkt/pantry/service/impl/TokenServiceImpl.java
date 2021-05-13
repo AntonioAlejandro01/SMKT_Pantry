@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 
 import com.antonioalejandro.smkt.pantry.model.TokenData;
 import com.antonioalejandro.smkt.pantry.service.TokenService;
@@ -21,6 +22,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /** The Constant log. */
+@Service
 @Slf4j
 public class TokenServiceImpl implements TokenService {
 	/** The discovery client. */

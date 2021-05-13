@@ -30,6 +30,7 @@ import com.antonioalejandro.smkt.pantry.model.enums.FilterEnum;
 import com.antonioalejandro.smkt.pantry.model.exceptions.ErrorService;
 import com.antonioalejandro.smkt.pantry.service.ProductService;
 import com.antonioalejandro.smkt.pantry.utils.Constants;
+import com.antonioalejandro.smkt.pantry.utils.Validations;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -39,9 +40,12 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class PantryController.
  */
+
+/** The Constant log. */
 
 /** The Constant log. */
 @Slf4j
@@ -54,6 +58,10 @@ public class PantryController {
 	@Autowired
 	private ProductService productService;
 
+	/** The validations. */
+	@Autowired
+	private Validations validations;
+	
 	/** The mapper list to response. */
 	private final Function<List<Product>, ResponseEntity<List<Product>>> mapperListToResponse;
 
@@ -87,8 +95,7 @@ public class PantryController {
 	public ResponseEntity<List<Product>> getAll(@RequestHeader(name = "userID", required = false) final String userId)
 			throws ErrorService {
 
-		log.info("All product for {}", userId);
-
+		log.info("getAll----- user: {}", userId);
 		return productService.all(userId).map(this.mapperListToResponse).orElse(ResponseEntity.noContent().build());
 	}
 
@@ -110,7 +117,8 @@ public class PantryController {
 	@GetMapping("id/{id}")
 	public ResponseEntity<Product> getById(@RequestHeader(name = "userID", required = true) final String userId,
 			@PathVariable(name = "id", required = true) final String id) throws ErrorService {
-		log.info("getById {}, user: {}", id, userId);
+		log.info("getById--- id: {}, user: {}", id, userId);
+		validations.id(id);
 		return productService.byId(userId, id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
 	}
 
@@ -139,6 +147,7 @@ public class PantryController {
 			@PathVariable(name = "filter") String filter, @PathVariable(name = "value") String value)
 			throws ErrorService {
 		log.info("search by {} with value {}. the user: {}", filter, value, userId);
+		validations.value(value);
 		return productService.byFilter(userId, filter, value).map(this.mapperListToResponse)
 				.orElse(ResponseEntity.notFound().build());
 	}
@@ -230,6 +239,7 @@ public class PantryController {
 	public ResponseEntity<Product> postProduct(@RequestHeader(name = "userID", required = true) final String userId,
 			@RequestBody(required = true) ProductDTO product) throws ErrorService {
 		log.info("addProduct to user: {}", userId);
+		validations.product(product);
 		return productService.add(userId, product).map(ResponseEntity::ok).orElse(ResponseEntity.badRequest().build());
 	}
 
@@ -258,6 +268,8 @@ public class PantryController {
 			@PathVariable(name = "id") String id, @RequestBody(required = true) ProductDTO product)
 			throws ErrorService {
 		log.info("update product with id {} by user {}", userId);
+		validations.id(id);
+		validations.product(product);
 		return productService.update(userId, id, product).map(ResponseEntity::ok)
 				.orElse(ResponseEntity.notFound().build());
 	}
@@ -287,6 +299,8 @@ public class PantryController {
 			@PathVariable(name = "id", required = true) String id,
 			@RequestParam(name = "amount", required = true) int amount) throws ErrorService {
 		log.info("add amount {} to product {} by user: {}", amount, id, userId);
+		validations.id(id);
+		validations.amount(amount);
 		productService.addAmount(userId, id, amount);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
@@ -317,6 +331,8 @@ public class PantryController {
 			@PathVariable(name = "id", required = true) String id,
 			@RequestParam(name = "amount", required = true) int amount) throws ErrorService {
 		log.info("remove amount {} to product {} by user: {}", amount, id, userId);
+		validations.id(id);
+		validations.amount(amount);
 		productService.removeAmount(userId, id, amount);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
@@ -341,6 +357,7 @@ public class PantryController {
 	public ResponseEntity<Void> deleteProduct(@RequestHeader(name = "userID", required = true) final String userId,
 			@PathVariable(name = "id", required = true) String id) throws ErrorService {
 		log.info("delete product with id {} by user: {}", userId);
+		validations.id(id);
 		productService.delete(userId, id);
 		return new ResponseEntity<>(HttpStatus.ACCEPTED);
 	}
