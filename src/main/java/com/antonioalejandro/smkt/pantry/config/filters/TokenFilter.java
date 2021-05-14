@@ -28,11 +28,15 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * The Class TokenFilter.
+ * 
+ * @author AntonioAlejandro01 - www.antonioalejandro.com
+ * @version 1.0.0
+ * @see Filter
+ * @apiNote Filter that verify the token and insert into request the field
+ *          {@code userId} and her value is the userId in the token
  */
 @Component
 @Order(1)
-
-/** The Constant log. */
 @Slf4j
 public class TokenFilter implements Filter {
 
@@ -64,7 +68,8 @@ public class TokenFilter implements Filter {
 				myResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
 				return;
 			}
-			HeaderMapRequestWrapper requestWrapper = new HeaderMapRequestWrapper(httpRequest);
+
+			HeaderRequestWrapper requestWrapper = new HeaderRequestWrapper(httpRequest);
 			Optional<String> userId = tokenService.getUserId(token.get());
 			if (userId.isEmpty()) {
 				log.info("Token is not valid");
@@ -79,16 +84,16 @@ public class TokenFilter implements Filter {
 	}
 
 	/**
-	 * The Class HeaderMapRequestWrapper.
+	 * The Class HeaderRequestWrapper.
 	 */
-	public class HeaderMapRequestWrapper extends HttpServletRequestWrapper {
+	public class HeaderRequestWrapper extends HttpServletRequestWrapper {
 
 		/**
 		 * construct a wrapper for this request.
 		 *
 		 * @param request the request
 		 */
-		public HeaderMapRequestWrapper(HttpServletRequest request) {
+		public HeaderRequestWrapper(HttpServletRequest request) {
 			super(request);
 		}
 

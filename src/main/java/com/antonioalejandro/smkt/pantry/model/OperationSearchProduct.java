@@ -1,23 +1,28 @@
 package com.antonioalejandro.smkt.pantry.model;
 
 import java.util.List;
+import java.util.Optional;
 
-import com.antonioalejandro.smkt.pantry.dao.ProductDao;
+import com.antonioalejandro.smkt.pantry.db.PantryDatabase;
+import com.antonioalejandro.smkt.pantry.model.exceptions.ErrorService;
 
 /**
- * The Interface OperationSearchProduct.
+ * The IFunctional Interface OperationSearchProduct.
+ * 
+ * @author AntonioAlejandro01 -www.antonioalejandro.com
+ * @version 1.0.0
  */
 @FunctionalInterface
 public interface OperationSearchProduct {
 
 	/**
-	 * Search.
-	 *
-	 * @param userId the user id
-	 * @param value  the value
-	 * @param dao    the dao
-	 * @return the list
-	 * @throws ErrorService the error service
+	 * Search a Product
+	 * 
+	 * @param userId
+	 * @param value
+	 * @param db
+	 * @return
+	 * @throws ErrorService
 	 */
-	public List<Product> search(String userId, String value, ProductDao dao) throws ErrorService;
+	public Optional<List<Product>> search(String userId, String value, PantryDatabase db) throws ErrorService;
 }

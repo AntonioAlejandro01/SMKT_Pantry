@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 
 import com.antonioalejandro.smkt.pantry.model.TokenData;
 import com.antonioalejandro.smkt.pantry.service.TokenService;
@@ -20,11 +22,15 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /** The Constant log. */
+@Service
 @Slf4j
 public class TokenServiceImpl implements TokenService {
 	/** The discovery client. */
 	@Autowired
 	private DiscoveryClient discoveryClient;
+
+	@Value("${id_oauth_instance}")
+	private String idOauthInstance;
 
 	/** The Constant TEMPLATE_REQUEST. */
 	private static final String REQUEST_KEY = "token";
@@ -72,7 +78,7 @@ public class TokenServiceImpl implements TokenService {
 	 * @return the url
 	 */
 	private String getUrl() {
-		ServiceInstance instanceInfo = discoveryClient.getInstances("smkt-oauth").get(0);
+		ServiceInstance instanceInfo = discoveryClient.getInstances(idOauthInstance).get(0);
 		return String.format(TEMPLATE_URL, instanceInfo.getHost(), instanceInfo.getPort());
 	}
 

@@ -3,6 +3,7 @@ package com.antonioalejandro.smkt.pantry.web;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,14 +22,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.antonioalejandro.smkt.pantry.model.Category;
-import com.antonioalejandro.smkt.pantry.model.ErrorService;
 import com.antonioalejandro.smkt.pantry.model.Filter;
-import com.antonioalejandro.smkt.pantry.model.FilterEnum;
 import com.antonioalejandro.smkt.pantry.model.Product;
 import com.antonioalejandro.smkt.pantry.model.dto.ProductDTO;
-import com.antonioalejandro.smkt.pantry.service.CategoryService;
+import com.antonioalejandro.smkt.pantry.model.enums.CategoryEnum;
+import com.antonioalejandro.smkt.pantry.model.enums.FilterEnum;
+import com.antonioalejandro.smkt.pantry.model.exceptions.ErrorService;
 import com.antonioalejandro.smkt.pantry.service.ProductService;
 import com.antonioalejandro.smkt.pantry.utils.Constants;
+import com.antonioalejandro.smkt.pantry.utils.Validations;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -38,9 +40,12 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class PantryController.
  */
+
+/** The Constant log. */
 
 /** The Constant log. */
 @Slf4j
@@ -49,14 +54,14 @@ import lombok.extern.slf4j.Slf4j;
 @Api(value = "/products", tags = { "Products" })
 public class PantryController {
 
-	/** The category service. */
-	@Autowired
-	private CategoryService categoryService;
-
 	/** The product service. */
 	@Autowired
 	private ProductService productService;
 
+	/** The validations. */
+	@Autowired
+	private Validations validations;
+	
 	/** The mapper list to response. */
 	private final Function<List<Product>, ResponseEntity<List<Product>>> mapperListToResponse;
 
@@ -90,10 +95,8 @@ public class PantryController {
 	public ResponseEntity<List<Product>> getAll(@RequestHeader(name = "userID", required = false) final String userId)
 			throws ErrorService {
 
-		log.info("All product for {}", userId);
-
-		return productService.allProducts(userId).map(this.mapperListToResponse)
-				.orElse(ResponseEntity.notFound().build());
+		log.info("getAll----- user: {}", userId);
+		return productService.all(userId).map(this.mapperListToResponse).orElse(ResponseEntity.noContent().build());
 	}
 
 	/**
@@ -114,9 +117,9 @@ public class PantryController {
 	@GetMapping("id/{id}")
 	public ResponseEntity<Product> getById(@RequestHeader(name = "userID", required = true) final String userId,
 			@PathVariable(name = "id", required = true) final String id) throws ErrorService {
-		log.info("getById {}, user: {}", id, userId);
-		return productService.productById(userId, id).map(product -> ResponseEntity.ok().body(product))
-				.orElse(ResponseEntity.notFound().build());
+		log.info("getById--- id: {}, user: {}", id, userId);
+		validations.id(id);
+		return productService.byId(userId, id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
 	}
 
 	/**
@@ -144,7 +147,8 @@ public class PantryController {
 			@PathVariable(name = "filter") String filter, @PathVariable(name = "value") String value)
 			throws ErrorService {
 		log.info("search by {} with value {}. the user: {}", filter, value, userId);
-		return productService.searchByFilter(userId, filter, value).map(this.mapperListToResponse)
+		validations.value(value);
+		return productService.byFilter(userId, filter, value).map(this.mapperListToResponse)
 				.orElse(ResponseEntity.notFound().build());
 	}
 
@@ -162,7 +166,8 @@ public class PantryController {
 	@GetMapping("categories")
 	public ResponseEntity<List<Category>> getCategories() {
 		log.info("Call /products/categories");
-		return ResponseEntity.ok(categoryService.getCategories());
+		return ResponseEntity
+				.ok(Stream.of(CategoryEnum.values()).map(CategoryEnum::toCategory).collect(Collectors.toList()));
 	}
 
 	/**
@@ -195,7 +200,8 @@ public class PantryController {
 	@ApiImplicitParams(value = {
 			@ApiImplicitParam(name = "Authorization", value = "JWT Token", required = true, type = "string", readOnly = true, paramType = "Header"),
 			@ApiImplicitParam(name = "userID", value = "Username for the user in token. The value autofill.", required = false, type = "string", readOnly = true, paramType = "Header"), })
-	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 204, message = "No Content", response = ErrorService.JSONServiceError.class),
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+			@ApiResponse(code = 204, message = "No Content", response = ErrorService.JSONServiceError.class),
 			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorService.JSONServiceError.class),
 			@ApiResponse(code = 404, message = "Not Found") })
 	@GetMapping(value = "/excel", produces = Constants.PRODUCES_XSL)
@@ -233,8 +239,8 @@ public class PantryController {
 	public ResponseEntity<Product> postProduct(@RequestHeader(name = "userID", required = true) final String userId,
 			@RequestBody(required = true) ProductDTO product) throws ErrorService {
 		log.info("addProduct to user: {}", userId);
-		return productService.addProduct(userId, product).map(prdct -> ResponseEntity.ok().body(prdct))
-				.orElse(ResponseEntity.badRequest().build());
+		validations.product(product);
+		return productService.add(userId, product).map(ResponseEntity::ok).orElse(ResponseEntity.badRequest().build());
 	}
 
 	/**
@@ -259,9 +265,12 @@ public class PantryController {
 			@ApiResponse(code = 404, message = "Not Found") })
 	@PutMapping("{id}")
 	public ResponseEntity<Product> putProduct(@RequestHeader(name = "userID", required = true) final String userId,
-			@PathVariable(name = "id") String id, @RequestBody(required = true) ProductDTO product) throws ErrorService {
+			@PathVariable(name = "id") String id, @RequestBody(required = true) ProductDTO product)
+			throws ErrorService {
 		log.info("update product with id {} by user {}", userId);
-		return productService.putProduct(userId, id, product).map(p -> ResponseEntity.ok().body(p))
+		validations.id(id);
+		validations.product(product);
+		return productService.update(userId, id, product).map(ResponseEntity::ok)
 				.orElse(ResponseEntity.notFound().build());
 	}
 
@@ -290,7 +299,9 @@ public class PantryController {
 			@PathVariable(name = "id", required = true) String id,
 			@RequestParam(name = "amount", required = true) int amount) throws ErrorService {
 		log.info("add amount {} to product {} by user: {}", amount, id, userId);
-		productService.addAmountToProduct(userId, id, amount);
+		validations.id(id);
+		validations.amount(amount);
+		productService.addAmount(userId, id, amount);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
@@ -320,7 +331,9 @@ public class PantryController {
 			@PathVariable(name = "id", required = true) String id,
 			@RequestParam(name = "amount", required = true) int amount) throws ErrorService {
 		log.info("remove amount {} to product {} by user: {}", amount, id, userId);
-		productService.removeAmountToProduct(userId, id, amount);
+		validations.id(id);
+		validations.amount(amount);
+		productService.removeAmount(userId, id, amount);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
@@ -344,7 +357,8 @@ public class PantryController {
 	public ResponseEntity<Void> deleteProduct(@RequestHeader(name = "userID", required = true) final String userId,
 			@PathVariable(name = "id", required = true) String id) throws ErrorService {
 		log.info("delete product with id {} by user: {}", userId);
-		productService.deleteProduct(userId, id);
+		validations.id(id);
+		productService.delete(userId, id);
 		return new ResponseEntity<>(HttpStatus.ACCEPTED);
 	}
 
@@ -357,7 +371,7 @@ public class PantryController {
 	@ExceptionHandler
 	public ResponseEntity<String> handleErrorService(final ErrorService errorService) {
 		log.error("Error: {}", errorService);
-		return errorService.getReponse();
+		return errorService.toResponse();
 	}
 
 }

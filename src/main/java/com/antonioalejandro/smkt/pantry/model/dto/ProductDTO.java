@@ -5,11 +5,11 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
- * Instantiates a new product DTO.
- */
-
-/**
- * Instantiates a new product DTO.
+ * Product DTO
+ * 
+ * @author AntonioAlejandro01 - www.antonioalejandro.com
+ * @version 1.0.0
+ * @apiNote Class prepare to send in JSON
  */
 @Data
 @ApiModel(value = "Product Request", description = "Product for request, not include the ID")

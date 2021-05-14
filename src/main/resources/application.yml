@@ -1,45 +1,27 @@
 spring:
- jackson:
-    serialization:
-      fail-on-empty-beans: false
- application:
-  name: 
-   smkt-pantry
- datasource:
-  url:
-   jdbc:mysql://localhost:3307/SMKT_PANTRY?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Europe/Madrid
-  username:
-   root
-  password:
-   root
-  driver-class-name: 
-     com.mysql.cj.jdbc.Driver     
- jpa:
-    database-platform:
-     org.hibernate.dialect.MySQL8Dialect  
-    hibernate:
-     ddl-auto:
-      create-drop
-      
-logging:
- level:
-  org:
-   hibernate:
-    SQL:
-     debug
-     
+  application:
+    name: smkt-pantry
 
 server:
   port: 4070
 
- 
 eureka:
- instance:
-  instance-id: 
-   ${spring.application.name}:${spring.application.instance_id:${server.port}}
- client:
-  service-url:
-   defaultZone: 
-    http://localhost:8761/eureka
-  fetchRegistry: true
-  
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${server.port}}
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    fetchRegistry: true
+
+logging:
+  level:
+    '[com.antonioalejandro.smkt.pantry]': DEBUG
+
+mongodb:
+  connection: mongodb://root:secret@localhost:27017/
+  database:
+    name: smkt
+    collection: products
+
+id_files_instance: smkt-files
+id_oauth_instance: smkt-oauth
