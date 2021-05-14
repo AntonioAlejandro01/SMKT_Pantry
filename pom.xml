@@ -7,7 +7,7 @@
 		<version>2.3.1.RELEASE</version>
 		<relativePath />
 	</parent>
-	<groupId>com.antonioalejandro.utils</groupId>
+	<groupId>com.antonioalejandro</groupId>
 	<artifactId>smkt-pantry</artifactId>
 	<version>1.0.0</version>
 	<name>smkt-pantry</name>
@@ -15,7 +15,7 @@
 	<properties>
 		<java.version>11</java.version>
 		<spring-cloud.version>Hoxton.SR6</spring-cloud.version>
-		<sonar.projectKey>AntonioAlejandro01_SMKT_Users</sonar.projectKey>
+		<sonar.projectKey>AntonioAlejandro01_SMKT_Pantry</sonar.projectKey>
 		<sonar.organization>antonioalejandro01</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 	</properties>

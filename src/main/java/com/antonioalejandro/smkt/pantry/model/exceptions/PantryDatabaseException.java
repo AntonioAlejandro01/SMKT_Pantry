@@ -20,9 +20,13 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = false)
 public class PantryDatabaseException extends Exception {
 
-    String msg;
-    HttpStatus status;
-    long timestamp;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private String msg;
+    private HttpStatus status;
+    private long timestamp;
 
     public PantryDatabaseException(String msg, HttpStatus status) {
         this.msg = msg;

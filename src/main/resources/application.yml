@@ -1,7 +1,4 @@
 spring:
-  jackson:
-    serialization:
-      fail-on-empty-beans: false
   application:
     name: smkt-pantry
 
@@ -18,12 +15,12 @@ eureka:
 
 logging:
   level:
-    '[com.antonioalejandro]': DEBUG
+    '[com.antonioalejandro.smkt.pantry]': DEBUG
 
 mongodb:
   connection: mongodb://root:secret@localhost:27017/
   database:
-    name: smkt_pantry
+    name: smkt
     collection: products
 
 id_files_instance: smkt-files
