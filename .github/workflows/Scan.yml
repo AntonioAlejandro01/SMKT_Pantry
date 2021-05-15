@@ -5,7 +5,7 @@ on:
     branches:
       - develop
   pull_request:
-    branches: [master,develop]
+    branches: [main,develop]
     types: [opened,synchronize]
 jobs:
   sonar:
