@@ -56,6 +56,7 @@ public class PantryDatabaseImpl implements PantryDatabase, Mappers {
 		} catch (Exception e) {
 			log.error("ERROR WHEN CREATING DATABASE CLIENT");
 			log.debug("ERROR: {}", e);
+			throw e;
 		}
 
 		// Functions
