@@ -1,11 +1,12 @@
 package com.antonioalejandro.utils.smkt.pantry.db;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -194,7 +195,6 @@ class PantryDatabaseTest {
 		db = new PantryDatabaseImpl("mongodb://root:secret@localhost:27017/", "smkt", "recipes");
 		ReflectionTestUtils.setField(db, "collection", collection);
 		FindIterable<Document> iterable = mock(FindIterable.class);
-		MongoCursor<Document> cursor = mock(MongoCursor.class);
 
 		when(collection.find(Mockito.any(Document.class))).thenReturn(iterable);
 
@@ -245,7 +245,6 @@ class PantryDatabaseTest {
 		db = new PantryDatabaseImpl("mongodb://root:secret@localhost:27017/", "smkt", "recipes");
 		ReflectionTestUtils.setField(db, "collection", collection);
 		FindIterable<Document> iterable = mock(FindIterable.class);
-		MongoCursor<Document> cursor = mock(MongoCursor.class);
 
 		when(collection.find(Mockito.any(Document.class))).thenReturn(iterable);
 

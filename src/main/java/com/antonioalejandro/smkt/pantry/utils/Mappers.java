@@ -14,7 +14,7 @@ import org.bson.Document;
  * @apiNote Interface for map between {@link Document} , {@link Product} and
  *          {@link Category}
  */
-public interface Mappers extends ConstantsMappers {
+public interface Mappers {
 
     /**
      * Map class {@link Product} to {@link Document} The id is exclude
@@ -23,9 +23,9 @@ public interface Mappers extends ConstantsMappers {
      * @return {@link Document}
      */
     default Document productToDocument(Product product) {
-        return new Document().append(KEY_ID, product.getId()).append(USER_ID, product.getUserId())
-                .append(CODE_KEY, product.getCodeKey()).append(CATEGORY, categoryToDocument(product.getCategory()))
-                .append(AMOUNT, product.getAmount()).append(PRICE, product.getPrice()).append(NAME, product.getName());
+        return new Document().append(Constants.KEY_ID, product.getId()).append(Constants.USER_ID, product.getUserId())
+                .append(Constants.CODE_KEY, product.getCodeKey()).append(Constants.CATEGORY, categoryToDocument(product.getCategory()))
+                .append(Constants.AMOUNT, product.getAmount()).append(Constants.PRICE, product.getPrice()).append(Constants.NAME, product.getName());
 
     }
 
@@ -36,7 +36,7 @@ public interface Mappers extends ConstantsMappers {
      * @return {@link Document}
      */
     default Document categoryToDocument(Category category) {
-        return new Document().append(KEY_ID, category.getId()).append(VALUE, category.getValue());
+        return new Document().append(Constants.KEY_ID, category.getId()).append(Constants.VALUE, category.getValue());
     }
 
     /**
@@ -46,14 +46,14 @@ public interface Mappers extends ConstantsMappers {
      * @return {@link Product}
      */
     default Product documentToProduct(Document doc) {
-        Product product = new Product();
-        product.setAmount(doc.getInteger(AMOUNT));
-        product.setId(doc.get(KEY_ID).toString());
-        product.setCodeKey(doc.getString(CODE_KEY));
-        product.setName(doc.getString(NAME));
-        product.setPrice(doc.getDouble(PRICE));
-        product.setUserId(doc.getString(USER_ID));
-        product.setCategory(documentToCategory((Document) doc.get(CATEGORY)));
+        var product = new Product();
+        product.setAmount(doc.getInteger(Constants.AMOUNT));
+        product.setId(doc.get(Constants.KEY_ID).toString());
+        product.setCodeKey(doc.getString(Constants.CODE_KEY));
+        product.setName(doc.getString(Constants.NAME));
+        product.setPrice(doc.getDouble(Constants.PRICE));
+        product.setUserId(doc.getString(Constants.USER_ID));
+        product.setCategory(documentToCategory((Document) doc.get(Constants.CATEGORY)));
         return product;
 
     }
@@ -65,9 +65,9 @@ public interface Mappers extends ConstantsMappers {
      * @return {@link Category}
      */
     default Category documentToCategory(Document doc) {
-        Category category = new Category();
-        category.setId(doc.getInteger(KEY_ID));
-        category.setValue(doc.getString(VALUE));
+        var category = new Category();
+        category.setId(doc.getInteger(Constants.KEY_ID));
+        category.setValue(doc.getString(Constants.VALUE));
         return category;
     }
 

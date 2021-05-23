@@ -40,7 +40,7 @@ public enum CategoryEnum {
      * @return {@link Category}
      */
     public Category toCategory() {
-        Category category = new Category();
+        var category = new Category();
         category.setId(id);
         category.setValue(value);
         return category;
