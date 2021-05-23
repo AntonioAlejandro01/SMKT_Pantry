@@ -2,7 +2,10 @@ package com.antonioalejandro.smkt.pantry.model.dto;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * Product DTO
@@ -11,7 +14,10 @@ import lombok.Data;
  * @version 1.0.0
  * @apiNote Class prepare to send in JSON
  */
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@ToString
 @ApiModel(value = "Product Request", description = "Product for request, not include the ID")
 public class ProductDTO {
 

@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 
 import com.antonioalejandro.smkt.pantry.model.Filter;
 import com.antonioalejandro.smkt.pantry.model.OperationSearchProduct;
-import com.antonioalejandro.smkt.pantry.model.exceptions.ErrorService;
+import com.antonioalejandro.smkt.pantry.model.exceptions.PantryException;
 
 import org.springframework.http.HttpStatus;
 
@@ -55,9 +55,9 @@ public enum FilterEnum {
 	 *
 	 * @param name the name
 	 * @return the filter enum
-	 * @throws ErrorService the error service
+	 * @throws PantryException the error service
 	 */
-	public static FilterEnum fromName(String name) throws ErrorService {
+	public static FilterEnum fromName(String name) throws PantryException {
 		FilterEnum filterEnum;
 
 		switch (name.toUpperCase()) {
@@ -77,7 +77,7 @@ public enum FilterEnum {
 				filterEnum = NAME;
 				break;
 			default:
-				throw new ErrorService(HttpStatus.BAD_REQUEST, "the filter is not valid");
+				throw new PantryException(HttpStatus.BAD_REQUEST, "the filter is not valid");
 		}
 		return filterEnum;
 	}
@@ -109,7 +109,7 @@ public enum FilterEnum {
 					try {
 						return db.findByAmount(userId, Integer.parseInt(value));
 					} catch (NumberFormatException e) {
-						throw new ErrorService(HttpStatus.BAD_REQUEST,
+						throw new PantryException(HttpStatus.BAD_REQUEST,
 								"The value of value parameter is not valid for amount, the type must be a integer");
 					}
 				};
@@ -119,7 +119,7 @@ public enum FilterEnum {
 					try {
 						return db.findByCategory(userId, Integer.parseInt(value));
 					} catch (NumberFormatException e) {
-						throw new ErrorService(HttpStatus.BAD_REQUEST,
+						throw new PantryException(HttpStatus.BAD_REQUEST,
 								"The value of value parameter is not valid for category, the type must be a integer");
 					}
 				};
@@ -129,7 +129,7 @@ public enum FilterEnum {
 					try {
 						return db.findByPrice(userId, Double.parseDouble(value));
 					} catch (NumberFormatException e) {
-						throw new ErrorService(HttpStatus.BAD_REQUEST,
+						throw new PantryException(HttpStatus.BAD_REQUEST,
 								"The value of value parameter is not valid for price, the type must be a double");
 					}
 				};

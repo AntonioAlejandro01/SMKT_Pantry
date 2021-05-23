@@ -69,7 +69,7 @@ public class TokenFilter implements Filter {
 				return;
 			}
 
-			HeaderRequestWrapper requestWrapper = new HeaderRequestWrapper(httpRequest);
+			var requestWrapper = new HeaderRequestWrapper(httpRequest);
 			Optional<String> userId = tokenService.getUserId(token.get());
 			if (userId.isEmpty()) {
 				log.info("Token is not valid");

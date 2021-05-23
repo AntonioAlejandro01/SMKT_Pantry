@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.antonioalejandro.smkt.pantry.db.PantryDatabase;
-import com.antonioalejandro.smkt.pantry.model.exceptions.ErrorService;
+import com.antonioalejandro.smkt.pantry.model.exceptions.PantryException;
 
 /**
  * The IFunctional Interface OperationSearchProduct.
@@ -22,7 +22,7 @@ public interface OperationSearchProduct {
 	 * @param value
 	 * @param db
 	 * @return
-	 * @throws ErrorService
+	 * @throws PantryException
 	 */
-	public Optional<List<Product>> search(String userId, String value, PantryDatabase db) throws ErrorService;
+	public Optional<List<Product>> search(String userId, String value, PantryDatabase db) throws PantryException;
 }
