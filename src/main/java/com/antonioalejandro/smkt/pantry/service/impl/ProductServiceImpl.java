@@ -27,7 +27,6 @@ import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
-import okhttp3.Response;
 
 /**
  * The Class ProductServiceImpl.
@@ -112,13 +111,13 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 	@Override
 	public Optional<byte[]> getExcel(String userId, String token) throws PantryException {
 		log.info("---> ProductService-----getExcel---- userId: {}, token: {}", userId, token);
-		OkHttpClient client = new OkHttpClient();
-		RequestBody body = RequestBody.create(getBodyForExcel(userId),
+		var client = new OkHttpClient();
+		var body = RequestBody.create(getBodyForExcel(userId),
 				MediaType.parse("application/json; charset=utf-8"));
 		log.debug("getExcel-----CREATE BODY_REQUEST");
 		Request req = new Request.Builder().url(getUrl()).post(body).addHeader(HEADER_AUTH, token).build();
 		log.debug("getExcel-----CREATE REQUEST");
-		try (Response response = client.newCall(req).execute()) {
+		try (var response = client.newCall(req).execute()) {
 			log.info("Call Response success");
 			if (response.code() == HttpStatus.OK.value()) {
 				log.info("getExcel----RESPONSE CALL STATUS OK");
@@ -130,7 +129,7 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 				throw new PantryException(HttpStatus.UNAUTHORIZED, "You can't do this operation or token is expired");
 			} else {
 				log.error("getExcel-----RESPONSE STATUS ERROR {}", response.code());
-				HttpStatus status = HttpStatus.valueOf(response.code());
+				var status = HttpStatus.valueOf(response.code());
 				throw new PantryException(status, status.getReasonPhrase());
 			}
 		} catch (IOException e) {
@@ -157,7 +156,7 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 			throw new PantryException(HttpStatus.BAD_REQUEST, "The category is not valid.");
 		}
 
-		Product productToSave = new Product();
+		var productToSave = new Product();
 		productToSave.setAmount(product.getAmount());
 		productToSave.setCategory(category.get().toCategory());
 		productToSave.setCodeKey(product.getCodeKey());
@@ -183,7 +182,7 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 	public Optional<Product> update(String userId, String id, ProductDTO product) throws PantryException {
 		log.info("update-----userId: {}, id:{} ,product: {}", userId, id, product);
 
-		Product productToUpdate = new Product();
+		var productToUpdate = new Product();
 		// the category maybe can updated
 		Optional<CategoryEnum> category = CategoryEnum.fromId(product.getCategory());
 		if (category.isEmpty()) {
@@ -266,7 +265,7 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 			throw new PantryException(HttpStatus.NO_CONTENT,
 					String.format("The user %s haven't got any products", userId));
 		}
-		ObjectMapper mapper = new ObjectMapper();
+		var mapper = new ObjectMapper();
 		try {
 			return mapper.writeValueAsString(products.get());
 		} catch (JsonProcessingException e) {

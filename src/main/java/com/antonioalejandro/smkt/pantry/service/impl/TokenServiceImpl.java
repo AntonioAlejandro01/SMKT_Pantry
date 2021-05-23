@@ -19,7 +19,6 @@ import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
-import okhttp3.Response;
 
 /** The Constant log. */
 @Service
@@ -52,10 +51,10 @@ public class TokenServiceImpl implements TokenService {
 	 */
 	@Override
 	public Optional<String> getUserId(String token) {
-		OkHttpClient client = new OkHttpClient();
+		var client = new OkHttpClient();
 		RequestBody body = new FormBody.Builder().add(REQUEST_KEY, token).build();
 		Request req = new Request.Builder().url(getUrl()).post(body).addHeader(HEADER_AUTH, AUTH_VALUE).build();
-		try (Response response = client.newCall(req).execute()) {
+		try (var response = client.newCall(req).execute()) {
 			if (response.code() != HttpStatus.OK.value()) {
 				log.info("response code for /check_token is not 200. CODE: {}", response.code());
 				return Optional.empty();
@@ -90,7 +89,7 @@ public class TokenServiceImpl implements TokenService {
 	 */
 	private Optional<TokenData> parseJson(String json) {
 		try {
-			ObjectMapper mapper = new ObjectMapper();
+			var mapper = new ObjectMapper();
 			TokenData data = mapper.readValue(json, TokenData.class);
 			log.debug("JSON parsed. VALUE: {}", data);
 			return Optional.of(data);
