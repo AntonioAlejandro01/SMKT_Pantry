@@ -6,23 +6,19 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
-/**
- * To string.
- *
- * @return the java.lang. string
- */
-@Data
 
-/**
- * To string.
- *
- * @return the java.lang. string
- */
+@Getter
+@Setter
 @Builder
-@ApiModel(value = "Filter", description = "The filter value")
+@ToString
+@NoArgsConstructor
 @AllArgsConstructor
+@ApiModel(value = "Filter", description = "The filter value")
 public class Filter {
 
 	/** The id. */

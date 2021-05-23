@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.antonioalejandro.smkt.pantry.model.Product;
-import com.antonioalejandro.smkt.pantry.model.exceptions.PantryDatabaseException;
+import com.antonioalejandro.smkt.pantry.model.exceptions.PantryException;
 import com.antonioalejandro.smkt.pantry.utils.Mappers;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -35,7 +35,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class PantryDatabaseImpl implements PantryDatabase, Mappers {
-
 
 	/** the Collection for make operations */
 	private MongoCollection<Document> collection;
@@ -140,13 +139,13 @@ public class PantryDatabaseImpl implements PantryDatabase, Mappers {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean addAmountById(String userId, String id, int amount) throws PantryDatabaseException {
+	public boolean addAmountById(String userId, String id, int amount) throws PantryException {
 		log.info("--> ---PantryDatabase---addAmountById----. UserId: {}, idProduct: {}, amount: {}", userId, id,
 				amount);
 		Optional<Product> product = findById(userId, id);
 		if (product.isEmpty()) {
 			log.error("---PantryDatabase---addAmountById----THE ID IS NOT VALID");
-			throw new PantryDatabaseException("The id is not valid.", HttpStatus.NOT_FOUND);
+			throw new PantryException(HttpStatus.NOT_FOUND, "The id is not valid.");
 		}
 		Document query = defaultDocument(userId).append(KEY_ID, id);
 		log.debug("addAmountById----QUERY: {}", query.toJson());
@@ -159,23 +158,23 @@ public class PantryDatabaseImpl implements PantryDatabase, Mappers {
 	/**
 	 * {@inheritDoc}
 	 * 
-	 * @throws PantryDatabaseException
+	 * @throws PantryException
 	 */
 	@Override
-	public boolean removeAmountById(String userId, String id, int amount) throws PantryDatabaseException {
+	public boolean removeAmountById(String userId, String id, int amount) throws PantryException {
 		log.info("--> ---PantryDatabase---removeAmountById----. UserId: {}, idProduct: {}, amount: {}", userId, id,
 				amount);
 		Optional<Product> product = findById(userId, id);
 		if (product.isEmpty()) {
 			log.error("---PantryDatabase---removeAmountById----THE ID IS NOT VALID");
-			throw new PantryDatabaseException("The id is not valid.", HttpStatus.NOT_FOUND);
+			throw new PantryException(HttpStatus.NOT_FOUND, "The id is not valid.");
 
 		}
 		if (product.get().getAmount() - amount < 0) {
 			log.error(
 					"---PantryDatabase---removeAmountById----THE FINAL AMOUNT IS NEGATIVE-----amountToRevome: {},productAmount: {} ,Final Amount: {}",
 					amount, product.get().getAmount(), product.get().getAmount() - amount);
-			throw new PantryDatabaseException("The final amount can't be negative", HttpStatus.FORBIDDEN);
+			throw new PantryException(HttpStatus.FORBIDDEN, "The final amount can't be negative");
 		}
 
 		Document query = defaultDocument(userId).append(KEY_ID, id);
@@ -211,7 +210,7 @@ public class PantryDatabaseImpl implements PantryDatabase, Mappers {
 	}
 
 	@Override
-	public Optional<Product> updateProduct(String userId, String id, Product product) throws PantryDatabaseException {
+	public Optional<Product> updateProduct(String userId, String id, Product product) throws PantryException {
 		log.info("--> ---PantryDatabase---updateProduct----. userId: {}, idProduct:{}, product", userId, id, product);
 
 		Document query = defaultDocument(userId).append(KEY_ID, id);
@@ -223,7 +222,7 @@ public class PantryDatabaseImpl implements PantryDatabase, Mappers {
 		log.debug("updateProduct-----UPDATE: {}", update.toJson());
 		if (collection.updateOne(query, update).getModifiedCount() == 0) {
 			log.error("updateProduct-----THE PRODUCT CAN'T BE UPDATED");
-			throw new PantryDatabaseException("The product can't be updated", HttpStatus.FORBIDDEN);
+			throw new PantryException(HttpStatus.FORBIDDEN, "The product can't be updated");
 		}
 		// return the product with new values
 		return findById(userId, id);

@@ -2,7 +2,11 @@ package com.antonioalejandro.smkt.pantry.model;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * The Class Category.
@@ -11,7 +15,11 @@ import lombok.Data;
  * @version 1.0.0
  * @apiNote Category for products
  */
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
 @ApiModel(value = "Category", description = "The category")
 public class Category {
 

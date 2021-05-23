@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.antonioalejandro.smkt.pantry.model.Product;
-import com.antonioalejandro.smkt.pantry.model.exceptions.PantryDatabaseException;
+import com.antonioalejandro.smkt.pantry.model.exceptions.PantryException;
 
 public interface PantryDatabase {
 
@@ -87,7 +87,7 @@ public interface PantryDatabase {
      * @param amount
      * @return
      */
-    public boolean addAmountById(String userId, String id, int amount) throws PantryDatabaseException;
+    public boolean addAmountById(String userId, String id, int amount) throws PantryException;
 
     /**
      * Remove amount to one product. If the amount will be negative the amount
@@ -96,10 +96,10 @@ public interface PantryDatabase {
      * @param userId
      * @param id
      * @param amount
-     * @throws PantryDatabaseException
+     * @throws PantryException
      * @return
      */
-    public boolean removeAmountById(String userId, String id, int amount) throws PantryDatabaseException;
+    public boolean removeAmountById(String userId, String id, int amount) throws PantryException;
 
     /**
      * Delete a Product by id
@@ -118,6 +118,6 @@ public interface PantryDatabase {
      * @param product
      * @return
      */
-    public Optional<Product> updateProduct(String userId, String id, Product product) throws PantryDatabaseException;
+    public Optional<Product> updateProduct(String userId, String id, Product product) throws PantryException;
 
 }
