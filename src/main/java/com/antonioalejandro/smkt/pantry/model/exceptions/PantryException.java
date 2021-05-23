@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
+import lombok.Getter;
 import lombok.ToString;
 
 /**
@@ -23,7 +23,8 @@ import lombok.ToString;
  * @apiNote Error that can be produced in the services
  */
 @ToString
-public class ErrorService extends Exception {
+@Getter
+public class PantryException extends Exception {
 
 	/** The error. */
 	private final JSONServiceError error;
@@ -37,7 +38,7 @@ public class ErrorService extends Exception {
 	 * @param status  the status
 	 * @param message the message
 	 */
-	public ErrorService(HttpStatus status, String message) {
+	public PantryException(HttpStatus status, String message) {
 		this.error = new JSONServiceError(status, message);
 	}
 
@@ -48,7 +49,7 @@ public class ErrorService extends Exception {
 	 * @param message   the message
 	 * @param timestamp the timestamp
 	 */
-	public ErrorService(HttpStatus status, String message, long timestamp) {
+	public PantryException(HttpStatus status, String message, long timestamp) {
 		this.error = new JSONServiceError(status, message, timestamp);
 	}
 
@@ -70,7 +71,6 @@ public class ErrorService extends Exception {
 	 * @apiNote Save all data for the error and can be converted into JSON with
 	 *          method {@code toString()}
 	 */
-	@Data
 	@ApiModel(value = "Pantry Error", description = "Object that return when error ocurred")
 	public class JSONServiceError implements Serializable {
 
@@ -81,14 +81,17 @@ public class ErrorService extends Exception {
 
 		/** The status. */
 		@ApiModelProperty(dataType = "integer", example = "400", value = "The HTTP code error")
+		@Getter
 		private final HttpStatus status;
 
 		/** The message. */
 		@ApiModelProperty(dataType = "string", example = "Field x is not valid", value = "the message of error for give more information about what happened")
+		@Getter
 		private final String message;
 
 		/** The timestamp. */
 		@ApiModelProperty(dataType = "string", example = "1617545715", value = "the exact time when the error ocurred")
+		@Getter
 		private final long timestamp;
 
 		/** The Constant JSON_TEMPLATE. */

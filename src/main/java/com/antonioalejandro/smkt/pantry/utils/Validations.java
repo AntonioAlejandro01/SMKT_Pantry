@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import com.antonioalejandro.smkt.pantry.model.dto.ProductDTO;
-import com.antonioalejandro.smkt.pantry.model.exceptions.ErrorService;
+import com.antonioalejandro.smkt.pantry.model.exceptions.PantryException;
 
 /**
  * The Class Validations.
@@ -19,9 +19,9 @@ public class Validations {
 	 * Id.
 	 *
 	 * @param id the id
-	 * @throws ErrorService the error service
+	 * @throws PantryException the error service
 	 */
-	public void id(String id) throws ErrorService {
+	public void id(String id) throws PantryException {
 		if (id == null) {
 			throw mandatoryError("id");
 		}
@@ -36,20 +36,20 @@ public class Validations {
 	 * Product
 	 *
 	 * @param product the product
-	 * @throws ErrorService the error service
+	 * @throws PantryException the error service
 	 */
-	public void product(ProductDTO product) throws ErrorService {
+	public void product(ProductDTO product) throws PantryException {
 		if (product == null) {
 			throw mandatoryError("product");
 		}
 		amount(product.getAmount());
 		if (product.getCategory() == 0) {
-			throw new ErrorService(HttpStatus.BAD_REQUEST, "Category not valid");
+			throw new PantryException(HttpStatus.BAD_REQUEST, "Category not valid");
 		}
 		string("name", product.getName());
 		string("codeKey",product.getCodeKey());
-		if ( product.getPrice() == null || Double.toString(product.getPrice()).replace("0", "").isBlank()) {
-			throw new ErrorService(HttpStatus.BAD_REQUEST, "The price is not valid");
+		if ( product.getPrice() == null || Double.toString(product.getPrice()).replace("0", "").replace(".", "").isBlank()) {
+			throw new PantryException(HttpStatus.BAD_REQUEST, "The price is not valid");
 		}
 		
 
@@ -59,9 +59,9 @@ public class Validations {
 	 * Value.
 	 *
 	 * @param value the value
-	 * @throws ErrorService the error service
+	 * @throws PantryException the error service
 	 */
-	public void value(String value) throws ErrorService {
+	public void value(String value) throws PantryException {
 		if (value == null) {
 			throw mandatoryError("value");
 		}
@@ -74,9 +74,9 @@ public class Validations {
 	 * Amount.
 	 *
 	 * @param amount the amount
-	 * @throws ErrorService the error service
+	 * @throws PantryException the error service
 	 */
-	public void amount(int amount) throws ErrorService{
+	public void amount(int amount) throws PantryException{
 		if (amount <= 0) {
 			throw negativeOrZeroAmountError("amount");
 		}
@@ -88,9 +88,9 @@ public class Validations {
 	 *
 	 * @param field the field
 	 * @param value the value
-	 * @throws ErrorService the error service
+	 * @throws PantryException the error service
 	 */
-	public void string(String field,String value) throws ErrorService {
+	public void string(String field,String value) throws PantryException {
 		if (value == null) {
 			throw mandatoryError(field);
 		}
@@ -108,8 +108,8 @@ public class Validations {
 	 * @param field the field
 	 * @return the error service
 	 */
-	private ErrorService negativeOrZeroAmountError(String field) {
-		return new ErrorService(HttpStatus.BAD_REQUEST, String.format("the %s can't be zero or less tha 0", field));
+	private PantryException negativeOrZeroAmountError(String field) {
+		return new PantryException(HttpStatus.BAD_REQUEST, String.format("the %s can't be zero or less tha 0", field));
 	}
 	
 	/**
@@ -118,8 +118,8 @@ public class Validations {
 	 * @param field the field
 	 * @return the error service
 	 */
-	private ErrorService mandatoryError(String field) {
-		return new ErrorService(HttpStatus.BAD_REQUEST, String.format("The %s is mandatory", field));
+	private PantryException mandatoryError(String field) {
+		return new PantryException(HttpStatus.BAD_REQUEST, String.format("The %s is mandatory", field));
 	}
 	
 	/**
@@ -128,8 +128,8 @@ public class Validations {
 	 * @param field the field
 	 * @return the error service
 	 */
-	private ErrorService emptyError(String field) {
-		return new ErrorService(HttpStatus.BAD_REQUEST, String.format("The %s can't be empty", field));
+	private PantryException emptyError(String field) {
+		return new PantryException(HttpStatus.BAD_REQUEST, String.format("The %s can't be empty", field));
 	}
 
 }

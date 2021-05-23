@@ -27,7 +27,7 @@ import com.antonioalejandro.smkt.pantry.model.Product;
 import com.antonioalejandro.smkt.pantry.model.dto.ProductDTO;
 import com.antonioalejandro.smkt.pantry.model.enums.CategoryEnum;
 import com.antonioalejandro.smkt.pantry.model.enums.FilterEnum;
-import com.antonioalejandro.smkt.pantry.model.exceptions.ErrorService;
+import com.antonioalejandro.smkt.pantry.model.exceptions.PantryException;
 import com.antonioalejandro.smkt.pantry.service.ProductService;
 import com.antonioalejandro.smkt.pantry.utils.Constants;
 import com.antonioalejandro.smkt.pantry.utils.Validations;
@@ -82,7 +82,7 @@ public class PantryController {
 	 *
 	 * @param userId the user id
 	 * @return the all
-	 * @throws ErrorService the error service
+	 * @throws PantryException the error service
 	 */
 	@ApiOperation(value = "Get all Product for user in token", responseContainer = "List", httpMethod = "GET", notes = "Get all Products that the user in the token is owner")
 	@ApiImplicitParams(value = {
@@ -93,7 +93,7 @@ public class PantryController {
 			@ApiResponse(code = 204, message = "No Content"), @ApiResponse(code = 401, message = "Unauthorized") })
 	@GetMapping("all")
 	public ResponseEntity<List<Product>> getAll(@RequestHeader(name = "userID", required = false) final String userId)
-			throws ErrorService {
+			throws PantryException {
 
 		log.info("getAll----- user: {}", userId);
 		return productService.all(userId).map(this.mapperListToResponse).orElse(ResponseEntity.noContent().build());
@@ -105,7 +105,7 @@ public class PantryController {
 	 * @param userId the user id
 	 * @param id     the id
 	 * @return the by id
-	 * @throws ErrorService the error service
+	 * @throws PantryException the error service
 	 */
 	@ApiOperation(value = "Get Product by id", httpMethod = "GET", notes = "Get a product by id")
 	@ApiImplicitParams(value = {
@@ -116,7 +116,7 @@ public class PantryController {
 			@ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 404, message = "Not Found") })
 	@GetMapping("id/{id}")
 	public ResponseEntity<Product> getById(@RequestHeader(name = "userID", required = true) final String userId,
-			@PathVariable(name = "id", required = true) final String id) throws ErrorService {
+			@PathVariable(name = "id", required = true) final String id) throws PantryException {
 		log.info("getById--- id: {}, user: {}", id, userId);
 		validations.id(id);
 		return productService.byId(userId, id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
@@ -129,7 +129,7 @@ public class PantryController {
 	 * @param filter the filter
 	 * @param value  the value
 	 * @return the response entity
-	 * @throws ErrorService the error service
+	 * @throws PantryException the error service
 	 */
 	@ApiOperation(value = "Search a Product by a filter", httpMethod = "GET", notes = "Get all Product that matches with filter and value for this filter")
 	@ApiImplicitParams(value = {
@@ -140,12 +140,12 @@ public class PantryController {
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, response = Product.class, responseContainer = "List", message = "OK"),
 			@ApiResponse(code = 204, message = "No Content"), @ApiResponse(code = 401, message = "Unauthorized"),
-			@ApiResponse(code = 400, message = "Bad Request", response = ErrorService.JSONServiceError.class),
+			@ApiResponse(code = 400, message = "Bad Request", response = PantryException.JSONServiceError.class),
 			@ApiResponse(code = 404, message = "Not Found") })
 	@GetMapping("search/{filter}/{value}")
 	public ResponseEntity<List<Product>> search(@RequestHeader(name = "userID", required = true) final String userId,
 			@PathVariable(name = "filter") String filter, @PathVariable(name = "value") String value)
-			throws ErrorService {
+			throws PantryException {
 		log.info("search by {} with value {}. the user: {}", filter, value, userId);
 		validations.value(value);
 		return productService.byFilter(userId, filter, value).map(this.mapperListToResponse)
@@ -194,26 +194,27 @@ public class PantryController {
 	 * @param userId the user id
 	 * @param token  the token
 	 * @return the excel
-	 * @throws ErrorService the error service
+	 * @throws PantryException the error service
 	 */
 	@ApiOperation(value = "Get Excel File ", httpMethod = "GET", notes = "Get excel file for all products that the user in token have it", produces = Constants.PRODUCES_XSL)
 	@ApiImplicitParams(value = {
 			@ApiImplicitParam(name = "Authorization", value = "JWT Token", required = true, type = "string", readOnly = true, paramType = "Header"),
 			@ApiImplicitParam(name = "userID", value = "Username for the user in token. The value autofill.", required = false, type = "string", readOnly = true, paramType = "Header"), })
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-			@ApiResponse(code = 204, message = "No Content", response = ErrorService.JSONServiceError.class),
-			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorService.JSONServiceError.class),
+			@ApiResponse(code = 204, message = "No Content", response = PantryException.JSONServiceError.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = PantryException.JSONServiceError.class),
 			@ApiResponse(code = 404, message = "Not Found") })
 	@GetMapping(value = "/excel", produces = Constants.PRODUCES_XSL)
 	public ResponseEntity<byte[]> getExcel(@RequestHeader(name = "userID", required = true) final String userId,
-			@RequestHeader(name = "Authorization", required = true) final String token) throws ErrorService {
+			@RequestHeader(name = "Authorization", required = true) final String token) throws PantryException {
 		log.info("excel for user: {}", userId);
 		return productService.getExcel(userId, token).map(excel -> {
 			ResponseEntity<byte[]> response;
 			if (excel.length == 0) {
 				response = ResponseEntity.noContent().build();
+			} else {
+				response = ResponseEntity.ok().body(excel);				
 			}
-			response = ResponseEntity.ok().body(excel);
 			return response;
 		}).orElse(ResponseEntity.notFound().build());
 	}
@@ -224,7 +225,7 @@ public class PantryController {
 	 * @param userId  the user id
 	 * @param product the product
 	 * @return the response entity
-	 * @throws ErrorService the error service
+	 * @throws PantryException the error service
 	 */
 	@ApiOperation(value = "Create a new Product", httpMethod = "POST", notes = "Create a new Product, the owner is the user in the token")
 	@ApiImplicitParams(value = {
@@ -233,11 +234,11 @@ public class PantryController {
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, response = Product.class, responseContainer = "List", message = "OK"),
 			@ApiResponse(code = 204, message = "No Content"), @ApiResponse(code = 401, message = "Unauthorized"),
-			@ApiResponse(code = 400, message = "Bad Request", response = ErrorService.JSONServiceError.class),
+			@ApiResponse(code = 400, message = "Bad Request", response = PantryException.JSONServiceError.class),
 			@ApiResponse(code = 404, message = "Not Found") })
 	@PostMapping("/")
 	public ResponseEntity<Product> postProduct(@RequestHeader(name = "userID", required = true) final String userId,
-			@RequestBody(required = true) ProductDTO product) throws ErrorService {
+			@RequestBody(required = true) ProductDTO product) throws PantryException {
 		log.info("addProduct to user: {}", userId);
 		validations.product(product);
 		return productService.add(userId, product).map(ResponseEntity::ok).orElse(ResponseEntity.badRequest().build());
@@ -250,7 +251,7 @@ public class PantryController {
 	 * @param id      the id
 	 * @param product the product
 	 * @return the response entity
-	 * @throws ErrorService the error service
+	 * @throws PantryException the error service
 	 */
 	@ApiOperation(value = "Update a Product by id", httpMethod = "PUT", notes = "Update a Product by id")
 	@ApiImplicitParams(value = {
@@ -260,13 +261,13 @@ public class PantryController {
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, response = Product.class, responseContainer = "List", message = "OK"),
 			@ApiResponse(code = 401, message = "Unauthorized"),
-			@ApiResponse(code = 400, message = "Bad Request", response = ErrorService.JSONServiceError.class),
-			@ApiResponse(code = 403, message = "Forbidden", response = ErrorService.JSONServiceError.class),
+			@ApiResponse(code = 400, message = "Bad Request", response = PantryException.JSONServiceError.class),
+			@ApiResponse(code = 403, message = "Forbidden", response = PantryException.JSONServiceError.class),
 			@ApiResponse(code = 404, message = "Not Found") })
 	@PutMapping("{id}")
 	public ResponseEntity<Product> putProduct(@RequestHeader(name = "userID", required = true) final String userId,
 			@PathVariable(name = "id") String id, @RequestBody(required = true) ProductDTO product)
-			throws ErrorService {
+			throws PantryException {
 		log.info("update product with id {} by user {}", userId);
 		validations.id(id);
 		validations.product(product);
@@ -281,7 +282,7 @@ public class PantryController {
 	 * @param id     the id
 	 * @param amount the amount
 	 * @return the response entity
-	 * @throws ErrorService the error service
+	 * @throws PantryException the error service
 	 */
 	@ApiOperation(value = "Add amount for one product", httpMethod = "PATCH", notes = "Shortcut for add amount to one product")
 	@ApiImplicitParams(value = {
@@ -290,14 +291,14 @@ public class PantryController {
 			@ApiImplicitParam(name = "id", value = "The id", required = true, type = "string", readOnly = true, paramType = "Path") })
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "No Content"),
 			@ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 400, message = "Bad Request"),
-			@ApiResponse(code = 403, message = "Forbidden", response = ErrorService.JSONServiceError.class),
+			@ApiResponse(code = 403, message = "Forbidden", response = PantryException.JSONServiceError.class),
 			@ApiResponse(code = 404, message = "Not Found"),
-			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorService.JSONServiceError.class) })
+			@ApiResponse(code = 500, message = "Internal Server Error", response = PantryException.JSONServiceError.class) })
 	@PatchMapping("add/{id}")
 	public ResponseEntity<Object> addAmountToProduct(
 			@RequestHeader(name = "userID", required = true) final String userId,
 			@PathVariable(name = "id", required = true) String id,
-			@RequestParam(name = "amount", required = true) int amount) throws ErrorService {
+			@RequestParam(name = "amount", required = true) int amount) throws PantryException {
 		log.info("add amount {} to product {} by user: {}", amount, id, userId);
 		validations.id(id);
 		validations.amount(amount);
@@ -312,7 +313,7 @@ public class PantryController {
 	 * @param id     the id
 	 * @param amount the amount
 	 * @return the response entity
-	 * @throws ErrorService the error service
+	 * @throws PantryException the error service
 	 */
 	@ApiOperation(value = "Remove amount for one product", httpMethod = "PATCH", notes = "Shortcut for remove amount to one product")
 	@ApiImplicitParams(value = {
@@ -321,15 +322,15 @@ public class PantryController {
 			@ApiImplicitParam(name = "id", value = "The id", required = true, type = "string", readOnly = true, paramType = "Path") })
 	@ApiResponses(value = { @ApiResponse(code = 204, message = "No Content"),
 			@ApiResponse(code = 401, message = "Unauthorized"),
-			@ApiResponse(code = 400, message = "Bad Request", response = ErrorService.JSONServiceError.class),
-			@ApiResponse(code = 403, message = "Forbidden", response = ErrorService.JSONServiceError.class),
+			@ApiResponse(code = 400, message = "Bad Request", response = PantryException.JSONServiceError.class),
+			@ApiResponse(code = 403, message = "Forbidden", response = PantryException.JSONServiceError.class),
 			@ApiResponse(code = 404, message = "Not Found"),
-			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorService.JSONServiceError.class) })
+			@ApiResponse(code = 500, message = "Internal Server Error", response = PantryException.JSONServiceError.class) })
 	@PatchMapping("remove/{id}")
 	public ResponseEntity<Object> removeAmountToProduct(
 			@RequestHeader(name = "userID", required = true) final String userId,
 			@PathVariable(name = "id", required = true) String id,
-			@RequestParam(name = "amount", required = true) int amount) throws ErrorService {
+			@RequestParam(name = "amount", required = true) int amount) throws PantryException {
 		log.info("remove amount {} to product {} by user: {}", amount, id, userId);
 		validations.id(id);
 		validations.amount(amount);
@@ -343,7 +344,7 @@ public class PantryController {
 	 * @param userId the user id
 	 * @param id     the id
 	 * @return the response entity
-	 * @throws ErrorService the error service
+	 * @throws PantryException the error service
 	 */
 	@ApiOperation(value = "Delete a Product", httpMethod = "DELETE", notes = "Delete a Product by id")
 	@ApiImplicitParams(value = {
@@ -352,10 +353,10 @@ public class PantryController {
 			@ApiImplicitParam(name = "id", value = "The id", required = true, type = "string", readOnly = true, paramType = "Path") })
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
 			@ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 400, message = "Bad Request"),
-			@ApiResponse(code = 403, message = "Forbidden", response = ErrorService.JSONServiceError.class) })
+			@ApiResponse(code = 403, message = "Forbidden", response = PantryException.JSONServiceError.class) })
 	@DeleteMapping("{id}")
 	public ResponseEntity<Void> deleteProduct(@RequestHeader(name = "userID", required = true) final String userId,
-			@PathVariable(name = "id", required = true) String id) throws ErrorService {
+			@PathVariable(name = "id", required = true) String id) throws PantryException {
 		log.info("delete product with id {} by user: {}", userId);
 		validations.id(id);
 		productService.delete(userId, id);
@@ -369,7 +370,7 @@ public class PantryController {
 	 * @return the response entity
 	 */
 	@ExceptionHandler
-	public ResponseEntity<String> handleErrorService(final ErrorService errorService) {
+	public ResponseEntity<String> handleErrorService(final PantryException errorService) {
 		log.error("Error: {}", errorService);
 		return errorService.toResponse();
 	}

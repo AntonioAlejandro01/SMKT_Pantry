@@ -5,7 +5,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * The Class Product.
@@ -13,7 +16,10 @@ import lombok.Data;
 /**
  * Instantiates a new product.
  */
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@ToString
 @JsonIgnoreProperties({ "userId" })
 @ApiModel(description = "Product for response , include de ID", value = "Product Response")
 public class Product {

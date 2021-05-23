@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import com.antonioalejandro.smkt.pantry.model.Product;
 import com.antonioalejandro.smkt.pantry.model.dto.ProductDTO;
-import com.antonioalejandro.smkt.pantry.model.exceptions.ErrorService;
+import com.antonioalejandro.smkt.pantry.model.exceptions.PantryException;
 
 /**
  * The Interface ProductService.
@@ -17,7 +17,7 @@ public interface ProductService {
 	 *
 	 * @param userId the user id
 	 * @return the list
-	 * @throws ErrorService the error service
+	 * @throws PantryException the error service
 	 */
 	public Optional<List<Product>> all(String userId);
 
@@ -27,7 +27,7 @@ public interface ProductService {
 	 * @param userId the user id
 	 * @param id     the id
 	 * @return the optional
-	 * @throws ErrorService the error service
+	 * @throws PantryException the error service
 	 */
 	public Optional<Product> byId(String userId, String id);
 
@@ -38,9 +38,9 @@ public interface ProductService {
 	 * @param filter the filter
 	 * @param value  the value
 	 * @return the optional
-	 * @throws ErrorService the error service
+	 * @throws PantryException the error service
 	 */
-	public Optional<List<Product>> byFilter(String userId, String filter, String value) throws ErrorService;
+	public Optional<List<Product>> byFilter(String userId, String filter, String value) throws PantryException;
 
 	/**
 	 * Gets the excel.
@@ -48,9 +48,9 @@ public interface ProductService {
 	 * @param userId the user id
 	 * @param token  the token
 	 * @return the excel
-	 * @throws ErrorService the error service
+	 * @throws PantryException the error service
 	 */
-	public Optional<byte[]> getExcel(String userId, String token) throws ErrorService;
+	public Optional<byte[]> getExcel(String userId, String token) throws PantryException;
 
 	/**
 	 * Adds the product.
@@ -58,9 +58,9 @@ public interface ProductService {
 	 * @param userId  the user id
 	 * @param product the product
 	 * @return the optional
-	 * @throws ErrorService the error service
+	 * @throws PantryException the error service
 	 */
-	public Optional<Product> add(String userId, ProductDTO product) throws ErrorService;
+	public Optional<Product> add(String userId, ProductDTO product) throws PantryException;
 
 	/**
 	 * Put product.
@@ -69,9 +69,9 @@ public interface ProductService {
 	 * @param id      the id
 	 * @param product the product
 	 * @return the optional
-	 * @throws ErrorService the error service
+	 * @throws PantryException the error service
 	 */
-	public Optional<Product> update(String userId, String id, ProductDTO product) throws ErrorService;
+	public Optional<Product> update(String userId, String id, ProductDTO product) throws PantryException;
 
 	/**
 	 * Adds the amount to product.
@@ -80,9 +80,9 @@ public interface ProductService {
 	 * @param id     the id
 	 * @param amount the amount
 	 * @return the optional
-	 * @throws ErrorService the error service
+	 * @throws PantryException the error service
 	 */
-	public void addAmount(String userId, String id, int amount) throws ErrorService;
+	public void addAmount(String userId, String id, int amount) throws PantryException;
 
 	/**
 	 * Removes the amount to product.
@@ -91,9 +91,9 @@ public interface ProductService {
 	 * @param id     the id
 	 * @param amount the amount
 	 * @return the http status
-	 * @throws ErrorService the error service
+	 * @throws PantryException the error service
 	 */
-	public void removeAmount(String userId, String id, int amount) throws ErrorService;
+	public void removeAmount(String userId, String id, int amount) throws PantryException;
 
 	/**
 	 * Delete product.
@@ -101,7 +101,7 @@ public interface ProductService {
 	 * @param userId the user id
 	 * @param id     the id
 	 * @return the http status
-	 * @throws ErrorService the error service
+	 * @throws PantryException the error service
 	 */
-	public void delete(String userId, String id) throws ErrorService;
+	public void delete(String userId, String id) throws PantryException;
 }
