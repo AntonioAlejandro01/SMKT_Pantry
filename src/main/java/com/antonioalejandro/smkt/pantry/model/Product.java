@@ -11,10 +11,11 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * The Class Product.
- */
-/**
- * Instantiates a new product.
+ * Product Class
+ * 
+ * @author AntonioAlejandro01 - www.antonioalejandro.com
+ * @version 1.0.0
+ *
  */
 @Getter
 @Setter

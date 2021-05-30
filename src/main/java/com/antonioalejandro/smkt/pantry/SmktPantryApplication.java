@@ -4,16 +4,14 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * The Class SmktPantryApplication.
+ * Smkt Pantry Application Class
+ * 
+ * @author Antonioalejandro01 - www.antonioalejadro.com
+ * @version 1.0.0
  */
 @SpringBootApplication
 public class SmktPantryApplication {
 
-	/**
-	 * The main method.
-	 *
-	 * @param args the arguments
-	 */
 	public static void main(String[] args) {
 		SpringApplication.run(SmktPantryApplication.class, args);
 	}
