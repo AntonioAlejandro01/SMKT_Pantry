@@ -30,6 +30,7 @@ import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
 
+@SuppressWarnings("unchecked")
 class PantryDatabaseTest {
 
 	private PantryDatabaseImpl db;

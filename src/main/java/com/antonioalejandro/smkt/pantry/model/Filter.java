@@ -12,6 +12,13 @@ import lombok.Setter;
 import lombok.ToString;
 
 
+/**
+ * Filter Class
+
+ * @author AntonioAlejandro01 - www.antonioalejandro.com
+ * @version 1.0.0
+ *
+ */
 @Getter
 @Setter
 @Builder

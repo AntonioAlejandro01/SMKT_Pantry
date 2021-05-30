@@ -3,7 +3,10 @@ package com.antonioalejandro.smkt.pantry.utils;
 import java.util.UUID;
 
 /**
- * The Class Utils.
+ * UUID Generator Interface
+ * 
+ * @author AntonioAlejandro01 - www.antonioalejandro.com
+ * @version 1.0.0
  */
 public interface UUIDGenerator {
 
