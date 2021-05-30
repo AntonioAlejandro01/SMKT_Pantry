@@ -118,7 +118,7 @@ Use this Service with Docker as Docker container. The Repo have 3 types of image
         image: antonioalejandro01/smkt-pantry:latest
         container_name: smkt-pantry
         environment:
-            PORT: 4080
+            PORT: 4070
             EUREKA_URL: http://127.0.0.1:8761/eureka
             DB_NAME: smkt
             DB_COLLECTION: products
