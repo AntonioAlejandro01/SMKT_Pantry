@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
  * Implementation for Pantry Database interface
  * 
  * @author AntonioAlejandro01 - www.antonioalejandro.com
- * @version 1.0.0
+ * @version 1.0.1
  * @see Mappers
  * @see PantryDatabase
  * @apiNote Class that manage product database
@@ -50,7 +50,8 @@ public class PantryDatabaseImpl implements PantryDatabase, Mappers {
 			@Value("${mongodb.database.collection}") String databaseCollection) {
 
 		log.info("Create Database connection and try connect");
-		try (var client = MongoClients.create(connectionString)) {
+		try  {
+			var client = MongoClients.create(connectionString);
 			MongoDatabase db = client.getDatabase(databaseName);
 			log.info("Create or access to collection into database");
 			collection = db.getCollection(databaseCollection);

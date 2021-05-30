@@ -2,29 +2,49 @@
 
 Service to manage products in SmartKitchen App
 
-[![Build Dev](https://github.com/AntonioAlejandro01/SMKT_Pantry/actions/workflows/buildDevVersion.yml/badge.svg?branch=develop)](https://github.com/AntonioAlejandro01/SMKT_Pantry/actions/workflows/buildDevVersion.yml) [![Build Snapshot](https://github.com/AntonioAlejandro01/SMKT_Pantry/actions/workflows/BuildSnapshot.yml/badge.svg?branch=main)](https://github.com/AntonioAlejandro01/SMKT_Pantry/actions/workflows/buildDevVersion.yml) [![Build Release](https://github.com/AntonioAlejandro01/SMKT_Pantry/actions/workflows/BuildRelease.yml/badge.svg?branch=main)](https://github.com/AntonioAlejandro01/SMKT_Pantry/actions/workflows/buildDevVersion.yml)
+![JAVA](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=java&logoColor=white) ![Spring](https://img.shields.io/badge/Spring-6DB33F?style=for-the-badge&logo=spring&logoColor=white) ![Mongo](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=AntonioAlejandro01_SMKT_Pantry&metric=alert_status)](https://sonarcloud.io/dashboard?id=AntonioAlejandro01_SMKT_Pantry) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=AntonioAlejandro01_SMKT_Pantry&metric=coverage)](https://sonarcloud.io/dashboard?id=AntonioAlejandro01_SMKT_Pantry)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) 
 
+[![Build Dev](https://github.com/AntonioAlejandro01/SMKT_Pantry/actions/workflows/buildDevVersion.yml/badge.svg?branch=develop)](https://github.com/AntonioAlejandro01/SMKT_Pantry/actions/workflows/buildDevVersion.yml) [![Build Snapshot](https://github.com/AntonioAlejandro01/SMKT_Pantry/actions/workflows/BuildSnapshot.yml/badge.svg)](https://github.com/AntonioAlejandro01/SMKT_Pantry/actions/workflows/BuildSnapshot.yml) [![Build Stable Version](https://github.com/AntonioAlejandro01/SMKT_Pantry/actions/workflows/BuildRelease.yml/badge.svg)](https://github.com/AntonioAlejandro01/SMKT_Pantry/actions/workflows/BuildRelease.yml)
+
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=AntonioAlejandro01_SMKT_Pantry&metric=alert_status)](https://sonarcloud.io/dashboard?id=AntonioAlejandro01_SMKT_Pantry) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=AntonioAlejandro01_SMKT_Pantry&metric=coverage)](https://sonarcloud.io/dashboard?id=AntonioAlejandro01_SMKT_Pantry) [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=AntonioAlejandro01_SMKT_Pantry&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=AntonioAlejandro01_SMKT_Pantry)
+
+## Product Structure
+
+```JSON
+    {
+        "id": "4b2725f1-87e8-4356-8bb2-02ffa284d359",
+        "name":"Cookies",
+        "category": {
+            "id": "1",
+            "value": "FOOD"
+        },
+        "amount": 161,
+        "price": 0.82,
+        "codeKey": "6e77e33d-9530-412f-9b72-af9029ffb3f0",
+        "userId": "Admin"
+    }
+ ```
 ## Use With Docker
 
 Use this Service with Docker as Docker container. The Repo have 3 types of images. 
 
 ### Types
 
-- **Stable**: this are the images that in her tag is a specific version ex.: ```antonioalejandro01/smkt-pantry:vX.X.X```. the last tag version have latest tag. 
+- **Stable**: These are the images that in her tag have a specific version ex.: ```antonioalejandro01/smkt-pantry:vX.X.X```. The last tag version have tag latest. 
 ```bash
     docker pull antonioalejandro01/smkt-pantry:v1.0.0
     # The last stable version
     docker pull antonioalejandro01/smkt-pantry:latest
  ```
 
-- **Snapshot**: this are the images that in her tag is snapshot ex.: ```antonioalejandro01/smkt-pantry:snapshot```
+- **Snapshot**: This is the image that in her tag have snapshot word ex.: ```antonioalejandro01/smkt-pantry:snapshot```
 ```bash 
     docker pull antonioalejandro01/smkt-pantry:snapshot
 ```
 
-- **Dev**: this image is only for developers and in her tag have dev ```antonioalejandro01/smkt-pantry:dev```
+- **Dev**: This image is only for developers and in her tag have dev word ```antonioalejandro01/smkt-pantry:dev```
 ```bash
     docker pull antonioalejandro01/smkt-pantry:dev
  ```
@@ -73,12 +93,12 @@ Use this Service with Docker as Docker container. The Repo have 3 types of image
     <tr>
         <td>id_files_instance</td>
         <td>smkt-files</td>
-        <td>Id that service <a href="http://github.com/antonioAlejandro01/SMKT_Files">smkt-files</a> have it in <a href="http://github.com/antonioAlejandro01/SMKT_Eureka">smkt-eureka</a></td>
+        <td>Id that service <a href="http://github.com/AntonioAlejandro01/SMKT_Files">smkt-files</a> have it in <a href="http://github.com/AntonioAlejandro01/SMKT_Eureka">smkt-eureka</a></td>
     </tr>
     <tr>
         <td>id_oauth_instance</td>
         <td>smkt-oauth</td>
-        <td>Id that service <a>smkt-oauth</a> have it in <a href="http://github.com/antonioAlejandro01/SMKT_Eureka">smkt-eureka</a></td>
+        <td>Id that service <a href="http://github.com/AntonioAlejandro01/SMKT_Oauth">smkt-oauth</a> have it in <a href="http://github.com/AntonioAlejandro01/SMKT_Eureka">smkt-eureka</a></td>
     </tr>
     
 </tbody>
@@ -94,7 +114,7 @@ Use this Service with Docker as Docker container. The Repo have 3 types of image
 ## Use in Docker Compose
 
 ```yaml
-    cookbook:
+    pantry:
         image: antonioalejandro01/smkt-pantry:latest
         container_name: smkt-pantry
         environment:
@@ -102,12 +122,12 @@ Use this Service with Docker as Docker container. The Repo have 3 types of image
             EUREKA_URL: http://127.0.0.1:8761/eureka
             DB_NAME: smkt
             DB_COLLECTION: products
-            DB_CONNECTION: mongodb://root@secret@mongo:27017/
+            DB_CONNECTION: mongodb://root:secret@mongo:27017/
         expose:
             - "4070"
         ports: 
             - "4070:4070"
-    mongo: # Mongo database for microservice
+    mongo: # Mongo database for micro service
         image: mongo
         container_name: smkt-mongo
         restart: always
