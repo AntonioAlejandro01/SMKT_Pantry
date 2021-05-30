@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
  * Implementation for Pantry Database interface
  * 
  * @author AntonioAlejandro01 - www.antonioalejandro.com
- * @version 1.0.1
+ * @version 1.0.0
  * @see Mappers
  * @see PantryDatabase
  * @apiNote Class that manage product database
