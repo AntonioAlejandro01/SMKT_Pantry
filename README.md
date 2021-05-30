@@ -91,12 +91,12 @@ Use this Service with Docker as Docker container. The Repo have 3 types of image
         <td>String connection to mongo database</td>
     </tr>
     <tr>
-        <td>id_files_instance</td>
+        <td>ID_FILES_INSTANCE</td>
         <td>smkt-files</td>
         <td>Id that service <a href="http://github.com/AntonioAlejandro01/SMKT_Files">smkt-files</a> have it in <a href="http://github.com/AntonioAlejandro01/SMKT_Eureka">smkt-eureka</a></td>
     </tr>
     <tr>
-        <td>id_oauth_instance</td>
+        <td>ID_OAUTH_INSTANCE</td>
         <td>smkt-oauth</td>
         <td>Id that service <a href="http://github.com/AntonioAlejandro01/SMKT_Oauth">smkt-oauth</a> have it in <a href="http://github.com/AntonioAlejandro01/SMKT_Eureka">smkt-eureka</a></td>
     </tr>
