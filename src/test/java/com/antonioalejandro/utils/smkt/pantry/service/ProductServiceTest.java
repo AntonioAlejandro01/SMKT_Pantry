@@ -1,6 +1,8 @@
 package com.antonioalejandro.utils.smkt.pantry.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -19,17 +21,17 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 
-import com.antonioalejandro.smkt.pantry.db.PantryDatabaseImpl;
 import com.antonioalejandro.smkt.pantry.model.Category;
 import com.antonioalejandro.smkt.pantry.model.Product;
 import com.antonioalejandro.smkt.pantry.model.dto.ProductDTO;
 import com.antonioalejandro.smkt.pantry.model.exceptions.PantryException;
+import com.antonioalejandro.smkt.pantry.repository.PantryRepository;
 import com.antonioalejandro.smkt.pantry.service.impl.ProductServiceImpl;
 
 class ProductServiceTest {
 
 	@Mock
-	private PantryDatabaseImpl db;
+	private PantryRepository db;
 
 	@Mock
 	private DiscoveryClient client;
@@ -44,20 +46,20 @@ class ProductServiceTest {
 
 	@Test
 	void testAll() throws Exception {
-		when(db.findAll(Mockito.anyString())).thenReturn(Optional.empty());
-		assertTrue(service.all("Admin").isEmpty());
+		when(db.all(Mockito.anyString())).thenReturn(List.of());
+		assertTrue(service.all("Admin").isPresent());
 	}
 
 	@Test
 	void testById() throws Exception {
-		when(db.findById(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.empty());
+		when(db.byId(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.empty());
 		assertTrue(service.byId("Admin", UUID.randomUUID().toString()).isEmpty());
 	}
 
 	@Test
 	void testbyFilter() throws Exception {
-		when(db.findByName(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.empty());
-		assertTrue(service.byFilter("Admin", "NAME", "TEST").isEmpty());
+		when(db.byName(Mockito.anyString(), Mockito.anyString())).thenReturn(List.of());
+		assertTrue(service.byFilter("Admin", "NAME", "TEST").isPresent());
 	}
 
 	@Test
@@ -73,11 +75,11 @@ class ProductServiceTest {
 
 	@Test
 	void testAdd() throws Exception {
-		when(db.insertProduct(Mockito.any(Product.class))).thenReturn(Optional.empty());
+		when(db.save(Mockito.any(Product.class))).thenReturn(new Product());
 		var product = new ProductDTO();
 		product.setCategory(1);
 
-		assertTrue(service.add("ADMIN", product).isEmpty());
+		assertTrue(service.add("ADMIN", product).isPresent());
 
 	}
 
@@ -94,18 +96,31 @@ class ProductServiceTest {
 
 	@Test
 	void testUpdate() throws Exception {
-		when(db.updateProduct(Mockito.anyString(), Mockito.anyString(), Mockito.any(Product.class)))
-				.thenReturn(Optional.empty());
+		when(db.byId(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.of(new Product()));
+		when(db.save(Mockito.any(Product.class))).thenReturn(new Product());
 		var product = new ProductDTO();
 		product.setCategory(1);
 
-		assertTrue(service.update("ADMIN", "ID", product).isEmpty());
+		assertTrue(service.update("ADMIN", "ID", product).isPresent());
+
+	}
+
+	@Test
+	void testUpdateError() throws Exception {
+		when(db.byId(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.empty());
+		when(db.save(Mockito.any(Product.class))).thenReturn(new Product());
+		var product = new ProductDTO();
+		product.setCategory(1);
+
+		assertThrows(PantryException.class, () -> {
+			service.update("ADMIN", "ID", product);
+		});
 
 	}
 
 	@Test
 	void testAddAmountError() throws Exception {
-		when(db.addAmountById(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+		when(db.byId(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.empty());
 		assertThrows(PantryException.class, () -> {
 			service.addAmount("USERID", "ID", 1);
 		});
@@ -114,7 +129,9 @@ class ProductServiceTest {
 
 	@Test
 	void testAddAmount() throws Exception {
-		when(db.addAmountById(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
+		var p = new Product();
+		p.setAmount(10);
+		when(db.byId(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.of(p));
 		assertDoesNotThrow(() -> {
 			service.addAmount("USERID", "ID", 1);
 		});
@@ -122,7 +139,18 @@ class ProductServiceTest {
 
 	@Test
 	void testRemoveAmountError() throws Exception {
-		when(db.removeAmountById(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt())).thenReturn(false);
+		when(db.byId(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.empty());
+		assertThrows(PantryException.class, () -> {
+			service.removeAmount("USERID", "ID", 1);
+		});
+
+	}
+
+	@Test
+	void testRemoveAmountError2() throws Exception {
+		var p = new Product();
+		p.setAmount(0);
+		when(db.byId(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.of(p));
 		assertThrows(PantryException.class, () -> {
 			service.removeAmount("USERID", "ID", 1);
 		});
@@ -131,7 +159,9 @@ class ProductServiceTest {
 
 	@Test
 	void testRemoveAmount() throws Exception {
-		when(db.removeAmountById(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt())).thenReturn(true);
+		var product = new Product();
+		product.setAmount(10);
+		when(db.byId(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.of(product));
 		assertDoesNotThrow(() -> {
 			service.removeAmount("USERID", "ID", 1);
 		});
@@ -139,7 +169,7 @@ class ProductServiceTest {
 
 	@Test
 	void testDeleteError() throws Exception {
-		when(db.deleteProduct(Mockito.anyString(), Mockito.anyString())).thenReturn(false);
+		when(db.byId(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.empty());
 		assertThrows(PantryException.class, () -> {
 			service.delete("USERID", "ID");
 		});
@@ -147,7 +177,7 @@ class ProductServiceTest {
 
 	@Test
 	void testDelete() throws Exception {
-		when(db.deleteProduct(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
+		when(db.byId(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.of(new Product()));
 		assertDoesNotThrow(() -> {
 			service.delete("USERID", "ID");
 		});
@@ -155,7 +185,7 @@ class ProductServiceTest {
 
 	@Test
 	void testGetExcelEmptyProducts() throws Exception {
-		when(db.findAll(Mockito.anyString())).thenReturn(Optional.empty());
+		when(db.all(Mockito.anyString())).thenReturn(List.of());
 		assertThrows(PantryException.class, () -> {
 			service.getExcel("USERID", "TOKEN");
 		});
@@ -163,7 +193,7 @@ class ProductServiceTest {
 
 	@Test
 	void testGetExcelEmptyListProducts() throws Exception {
-		when(db.findAll(Mockito.anyString())).thenReturn(Optional.of(List.of()));
+		when(db.all(Mockito.anyString())).thenReturn(List.of());
 		assertThrows(PantryException.class, () -> {
 			service.getExcel("USERID", "TOKEN");
 		});
@@ -180,7 +210,7 @@ class ProductServiceTest {
 		product.setName("NAME");
 		product.setPrice(0.23d);
 
-		when(db.findAll(Mockito.anyString())).thenReturn(Optional.of(List.of(product)));
+		when(db.all(Mockito.anyString())).thenReturn(List.of(product));
 		when(client.getInstances(Mockito.anyString())).thenReturn(new ArrayList<>());
 		assertThrows(PantryException.class, () -> {
 			service.getExcel("USERID", "TOKEN");
@@ -189,7 +219,7 @@ class ProductServiceTest {
 
 	@Test
 	void testGetExcelErrorMapper() throws Exception {
-		when(db.findAll(Mockito.anyString())).thenReturn(Optional.of(List.of(new Product())));
+		when(db.all(Mockito.anyString())).thenReturn(List.of(new Product()));
 		assertThrows(PantryException.class, () -> {
 			service.getExcel("USERID", "TOKEN");
 		});
@@ -210,7 +240,7 @@ class ProductServiceTest {
 		when(instance.getPort()).thenReturn(8000);
 		when(instance.getHost()).thenReturn("127.0.0.1");
 		when(client.getInstances(Mockito.any())).thenReturn(Arrays.asList(instance));
-		when(db.findAll(Mockito.anyString())).thenReturn(Optional.of(Arrays.asList(product)));
+		when(db.all(Mockito.anyString())).thenReturn(Arrays.asList(product));
 		assertThrows(PantryException.class, () -> {
 			service.getExcel("USERID", "TOKEN");
 		});

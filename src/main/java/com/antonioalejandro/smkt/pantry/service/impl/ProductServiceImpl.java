@@ -11,12 +11,12 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import com.antonioalejandro.smkt.pantry.db.PantryDatabase;
 import com.antonioalejandro.smkt.pantry.model.Product;
 import com.antonioalejandro.smkt.pantry.model.dto.ProductDTO;
 import com.antonioalejandro.smkt.pantry.model.enums.CategoryEnum;
 import com.antonioalejandro.smkt.pantry.model.enums.FilterEnum;
 import com.antonioalejandro.smkt.pantry.model.exceptions.PantryException;
+import com.antonioalejandro.smkt.pantry.repository.PantryRepository;
 import com.antonioalejandro.smkt.pantry.service.ProductService;
 import com.antonioalejandro.smkt.pantry.utils.UUIDGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -46,9 +46,8 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 	/** The Constant TEMPLATE_URL. */
 	private static final String TEMPLATE_URL = "http://%s:%s/excel/products";
 
-	/** The repository. */
 	@Autowired
-	private PantryDatabase db;
+	private PantryRepository pantryRepo;
 
 	/** The discovery client. */
 	@Autowired
@@ -67,7 +66,7 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 	@Override
 	public Optional<List<Product>> all(String userId) {
 		log.info("---> ProductService-----findAll---- userId: {}", userId);
-		return db.findAll(userId);
+		return Optional.ofNullable(pantryRepo.all(userId));
 	}
 
 	/**
@@ -81,7 +80,7 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 	@Override
 	public Optional<Product> byId(String userId, String id) {
 		log.info("---> ProductService-----findById---- userId: {}, id: {}", userId, id);
-		return db.findById(userId, id);
+		return pantryRepo.byId(userId, id);
 	}
 
 	/**
@@ -96,7 +95,7 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 	@Override
 	public Optional<List<Product>> byFilter(String userId, String filter, String value) throws PantryException {
 		log.info("---> ProductService-----findByFilter---- userId: {}, filter: {}, value: {}", userId, filter, value);
-		return FilterEnum.fromName(filter).getFunctionForSearch().search(userId, value, db);
+		return FilterEnum.fromName(filter).getFunctionForSearch().search(userId, value, pantryRepo);
 
 	}
 
@@ -112,8 +111,7 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 	public Optional<byte[]> getExcel(String userId, String token) throws PantryException {
 		log.info("---> ProductService-----getExcel---- userId: {}, token: {}", userId, token);
 		var client = new OkHttpClient();
-		var body = RequestBody.create(getBodyForExcel(userId),
-				MediaType.parse("application/json; charset=utf-8"));
+		var body = RequestBody.create(getBodyForExcel(userId), MediaType.parse("application/json; charset=utf-8"));
 		log.debug("getExcel-----CREATE BODY_REQUEST");
 		Request req = new Request.Builder().url(getUrl()).post(body).addHeader(HEADER_AUTH, token).build();
 		log.debug("getExcel-----CREATE REQUEST");
@@ -166,7 +164,7 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 		// set id with uuid
 		productToSave.setId(generateUUID());
 
-		return db.insertProduct(productToSave);
+		return Optional.ofNullable(pantryRepo.save(productToSave));
 	}
 
 	/**
@@ -182,21 +180,25 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 	public Optional<Product> update(String userId, String id, ProductDTO product) throws PantryException {
 		log.info("update-----userId: {}, id:{} ,product: {}", userId, id, product);
 
-		var productToUpdate = new Product();
 		// the category maybe can updated
 		Optional<CategoryEnum> category = CategoryEnum.fromId(product.getCategory());
 		if (category.isEmpty()) {
 			log.warn("The category id is not valid");
 			throw new PantryException(HttpStatus.BAD_REQUEST, "The category is not valid.");
 		}
-		productToUpdate.setCategory(category.get().toCategory());
-		productToUpdate.setAmount(product.getAmount());
-		productToUpdate.setCodeKey(product.getCodeKey());
-		productToUpdate.setName(product.getName());
-		productToUpdate.setPrice(product.getPrice());
-		productToUpdate.setUserId(userId);
+		var oProductSaved = pantryRepo.byId(userId, id);
+		if (oProductSaved.isEmpty()) {
+			throw new PantryException(HttpStatus.NOT_FOUND, "The id not valid");
+		}
+		var productSaved = oProductSaved.get();
 
-		return db.updateProduct(userId, id, productToUpdate);
+		productSaved.setCategory(category.get().toCategory());
+		productSaved.setAmount(product.getAmount());
+		productSaved.setCodeKey(product.getCodeKey());
+		productSaved.setName(product.getName());
+		productSaved.setPrice(product.getPrice());
+
+		return Optional.ofNullable(pantryRepo.save(productSaved));
 	}
 
 	/**
@@ -209,10 +211,17 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 	 */
 	@Override
 	public void addAmount(String userId, String id, int amount) throws PantryException {
-		boolean isUpdated = db.addAmountById(userId, id, amount);
-		if (!isUpdated) {
-			throw new PantryException(HttpStatus.FORBIDDEN, "The id is not valid or you haven't got grants");
+		log.info(" ---> ProductService------ addAmount--userId: {}, id: {}, amount: {}", userId, id, amount);
+		var oProductSaved = pantryRepo.byId(userId, id);
+
+		if (oProductSaved.isEmpty()) {
+			throw new PantryException(HttpStatus.NOT_FOUND, "The id is incorrect");
 		}
+
+		var product = oProductSaved.get();
+		product.setAmount(product.getAmount() + amount);
+
+		pantryRepo.save(product);
 
 	}
 
@@ -227,11 +236,23 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 	@Override
 	public void removeAmount(String userId, String id, int amount) throws PantryException {
 		log.info(" ---> ProductService------ removeAmount--userId: {}, id: {}, amount: {}", userId, id, amount);
-		boolean isUpdated = db.removeAmountById(userId, id, amount);
-		if (!isUpdated) {
-			throw new PantryException(HttpStatus.FORBIDDEN, "Can't be updated the amount");
+		var oProductSaved = pantryRepo.byId(userId, id);
+
+		if (oProductSaved.isEmpty()) {
+			throw new PantryException(HttpStatus.NOT_FOUND, "The id is incorrect");
 		}
 
+		var product = oProductSaved.get();
+		var finalAmount = product.getAmount() - amount;
+		if (finalAmount < 0) {
+			log.error(
+					"---ProductServiceImpl---removeAmount----THE FINAL AMOUNT IS NEGATIVE-----amountToRevome: {},productAmount: {} ,Final Amount: {}",
+					amount, product.getAmount(), finalAmount);
+			throw new PantryException(HttpStatus.FORBIDDEN, "The final amount can't be negative");
+		}
+		product.setAmount(finalAmount);
+
+		pantryRepo.save(product);
 	}
 
 	/**
@@ -244,11 +265,13 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 	@Override
 	public void delete(String userId, String id) throws PantryException {
 		log.info(" ---> ProductService------ delete--userId: {}, id: {}", userId, id);
-		boolean wasDeleted = db.deleteProduct(userId, id);
-		if (!wasDeleted) {
-			log.error("delete----THE PRODUCT CAN'T BE DELETED");
-			throw new PantryException(HttpStatus.FORBIDDEN, "The product can't be deleted");
+		var oProductSaved = pantryRepo.byId(userId, id);
+
+		if (oProductSaved.isEmpty()) {
+			throw new PantryException(HttpStatus.NOT_FOUND, "The id is incorrect");
 		}
+
+		pantryRepo.deleteById(oProductSaved.get().getId());
 	}
 
 	/**

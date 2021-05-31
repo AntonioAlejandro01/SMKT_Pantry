@@ -2,14 +2,15 @@ package com.antonioalejandro.smkt.pantry.model.enums;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.springframework.http.HttpStatus;
 
 import com.antonioalejandro.smkt.pantry.model.Filter;
 import com.antonioalejandro.smkt.pantry.model.OperationSearchProduct;
 import com.antonioalejandro.smkt.pantry.model.exceptions.PantryException;
-
-import org.springframework.http.HttpStatus;
 
 import lombok.Getter;
 
@@ -61,23 +62,23 @@ public enum FilterEnum {
 		FilterEnum filterEnum;
 
 		switch (name.toUpperCase()) {
-			case "CATEGORY":
-				filterEnum = CATEGORY;
-				break;
-			case "CODEKEY":
-				filterEnum = CODEKEY;
-				break;
-			case "PRICE":
-				filterEnum = PRICE;
-				break;
-			case "AMOUNT":
-				filterEnum = AMOUNT;
-				break;
-			case "NAME":
-				filterEnum = NAME;
-				break;
-			default:
-				throw new PantryException(HttpStatus.BAD_REQUEST, "the filter is not valid");
+		case "CATEGORY":
+			filterEnum = CATEGORY;
+			break;
+		case "CODEKEY":
+			filterEnum = CODEKEY;
+			break;
+		case "PRICE":
+			filterEnum = PRICE;
+			break;
+		case "AMOUNT":
+			filterEnum = AMOUNT;
+			break;
+		case "NAME":
+			filterEnum = NAME;
+			break;
+		default:
+			throw new PantryException(HttpStatus.BAD_REQUEST, "the filter is not valid");
 		}
 		return filterEnum;
 	}
@@ -101,42 +102,42 @@ public enum FilterEnum {
 	public OperationSearchProduct getFunctionForSearch() {
 		OperationSearchProduct operationSearch = null;
 		switch (this) {
-			case NAME:
-				operationSearch = (userId, value, db) -> db.findByName(userId, value);
-				break;
-			case AMOUNT:
-				operationSearch = (userId, value, db) -> {
-					try {
-						return db.findByAmount(userId, Integer.parseInt(value));
-					} catch (NumberFormatException e) {
-						throw new PantryException(HttpStatus.BAD_REQUEST,
-								"The value of value parameter is not valid for amount, the type must be a integer");
-					}
-				};
-				break;
-			case CATEGORY:
-				operationSearch = (userId, value, db) -> {
-					try {
-						return db.findByCategory(userId, Integer.parseInt(value));
-					} catch (NumberFormatException e) {
-						throw new PantryException(HttpStatus.BAD_REQUEST,
-								"The value of value parameter is not valid for category, the type must be a integer");
-					}
-				};
-				break;
-			case PRICE:
-				operationSearch = (userId, value, db) -> {
-					try {
-						return db.findByPrice(userId, Double.parseDouble(value));
-					} catch (NumberFormatException e) {
-						throw new PantryException(HttpStatus.BAD_REQUEST,
-								"The value of value parameter is not valid for price, the type must be a double");
-					}
-				};
-				break;
-			default:// codeKey
-				operationSearch = (userId, value, db) -> db.findByCodeKey(userId, value).map(Arrays::asList);
-				break;
+		case NAME:
+			operationSearch = (userId, value, repo) -> Optional.of(repo.byName(userId, value));
+			break;
+		case AMOUNT:
+			operationSearch = (userId, value, repo) -> {
+				try {
+					return Optional.ofNullable(repo.byAmount(userId, Integer.parseInt(value)));
+				} catch (NumberFormatException e) {
+					throw new PantryException(HttpStatus.BAD_REQUEST,
+							"The value of value parameter is not valid for amount, the type must be a integer");
+				}
+			};
+			break;
+		case CATEGORY:
+			operationSearch = (userId, value, repo) -> {
+				try {
+					return Optional.ofNullable(repo.byCategory(userId, Integer.parseInt(value)));
+				} catch (NumberFormatException e) {
+					throw new PantryException(HttpStatus.BAD_REQUEST,
+							"The value of value parameter is not valid for category, the type must be a integer");
+				}
+			};
+			break;
+		case PRICE:
+			operationSearch = (userId, value, repo) -> {
+				try {
+					return Optional.ofNullable(repo.byPrice(userId, Double.parseDouble(value)));
+				} catch (NumberFormatException e) {
+					throw new PantryException(HttpStatus.BAD_REQUEST,
+							"The value of value parameter is not valid for price, the type must be a double");
+				}
+			};
+			break;
+		default:// codeKey
+			operationSearch = (userId, value, repo) -> repo.byCodeKey(userId, value).map(Arrays::asList);
+			break;
 		}
 
 		return operationSearch;
