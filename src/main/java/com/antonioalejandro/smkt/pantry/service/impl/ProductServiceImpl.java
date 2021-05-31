@@ -40,6 +40,7 @@ import okhttp3.RequestBody;
 @Slf4j
 public class ProductServiceImpl implements ProductService, UUIDGenerator {
 
+	public static final String THE_ID_IS_INCORRECT = "The id is incorrect"; 
 	/** The Constant HEADER_AUTH. */
 	private static final String HEADER_AUTH = "Authorization";
 
@@ -215,7 +216,7 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 		var oProductSaved = pantryRepo.byId(userId, id);
 
 		if (oProductSaved.isEmpty()) {
-			throw new PantryException(HttpStatus.NOT_FOUND, "The id is incorrect");
+			throw new PantryException(HttpStatus.NOT_FOUND, THE_ID_IS_INCORRECT);
 		}
 
 		var product = oProductSaved.get();
@@ -239,7 +240,7 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 		var oProductSaved = pantryRepo.byId(userId, id);
 
 		if (oProductSaved.isEmpty()) {
-			throw new PantryException(HttpStatus.NOT_FOUND, "The id is incorrect");
+			throw new PantryException(HttpStatus.NOT_FOUND, THE_ID_IS_INCORRECT);
 		}
 
 		var product = oProductSaved.get();
@@ -268,7 +269,7 @@ public class ProductServiceImpl implements ProductService, UUIDGenerator {
 		var oProductSaved = pantryRepo.byId(userId, id);
 
 		if (oProductSaved.isEmpty()) {
-			throw new PantryException(HttpStatus.NOT_FOUND, "The id is incorrect");
+			throw new PantryException(HttpStatus.NOT_FOUND, THE_ID_IS_INCORRECT);
 		}
 
 		pantryRepo.deleteById(oProductSaved.get().getId());
