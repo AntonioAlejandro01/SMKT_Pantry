@@ -9,21 +9,6 @@
             "name": "id_oauth_instance",
             "type": "java.lang.String",
             "description": "Id for instance that service authetication have it"
-        },
-        {
-            "name": "mongodb.database.name",
-            "type": "java.lang.String",
-            "description": "Name for mongo database"
-        },
-        {
-            "name": "mongodb.connection",
-            "type": "java.lang.String",
-            "description": "String connection for mongo database"
-        },
-        {
-            "name": "mongodb.database.collection",
-            "type": "java.lang.String",
-            "description": "Name of the collection in the mongo database"
         }
     ]
 }
