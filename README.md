@@ -81,11 +81,6 @@ Use this Service with Docker as Docker container. The Repo have 3 types of image
         <td>Name for mongo database</td>
     </tr>
     <tr>
-        <td>DB_COLLECTION</td>
-        <td>products</td>
-        <td>Name for Collection in mongo database</td>
-    </tr>
-    <tr>
         <td>DB_CONNECTION</td>
         <td>mongodb://root:secret@localhost:27017/</td>
         <td>String connection to mongo database</td>
@@ -121,7 +116,6 @@ Use this Service with Docker as Docker container. The Repo have 3 types of image
             PORT: 4070
             EUREKA_URL: http://127.0.0.1:8761/eureka
             DB_NAME: smkt
-            DB_COLLECTION: products
             DB_CONNECTION: mongodb://root:secret@mongo:27017/
         expose:
             - "4070"

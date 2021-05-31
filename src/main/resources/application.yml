@@ -1,6 +1,11 @@
 spring:
   application:
     name: smkt-pantry
+  data:
+    mongodb:
+      database: smkt
+      uri: mongodb://root:secret@localhost:27017/ 
+      
 
 server:
   port: 4070
@@ -16,12 +21,6 @@ eureka:
 logging:
   level:
     '[com.antonioalejandro.smkt.pantry]': DEBUG
-
-mongodb:
-  connection: mongodb://root:secret@localhost:27017/
-  database:
-    name: smkt
-    collection: products
 
 id_files_instance: smkt-files
 id_oauth_instance: smkt-oauth

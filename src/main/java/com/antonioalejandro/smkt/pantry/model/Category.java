@@ -1,5 +1,7 @@
 package com.antonioalejandro.smkt.pantry.model;
 
+import org.springframework.data.annotation.Id;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -25,6 +27,7 @@ public class Category {
 
 	/** The id. */
 	@ApiModelProperty(dataType = "integer", position = 1, example = "1", value = "The ID of Category")
+	@Id
 	private int id;
 
 	/** The value. */

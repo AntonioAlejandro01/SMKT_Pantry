@@ -1,5 +1,8 @@
 package com.antonioalejandro.smkt.pantry.model;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -23,10 +26,12 @@ import lombok.ToString;
 @ToString
 @JsonIgnoreProperties({ "userId" })
 @ApiModel(description = "Product for response , include de ID", value = "Product Response")
+@Document(collection = "products")
 public class Product {
 
 	/** The id. */
 	@ApiModelProperty(dataType = "string", example = "123e4567-e89b-42d3-a456-556642440000", position = 0, value = "The ID for Product, it's a UUID")
+	@Id
 	private String id;
 
 	/** The name. */
