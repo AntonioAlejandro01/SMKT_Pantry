@@ -1,14 +1,17 @@
-{
-    "properties": [
-        {
-            "name": "id_files_instance",
-            "type": "java.lang.String",
-            "description": "Id for instance that service for files have it "
-        },
-        {
-            "name": "id_oauth_instance",
-            "type": "java.lang.String",
-            "description": "Id for instance that service authetication have it"
-        }
-    ]
-}
+{"properties": [
+  {
+    "name": "id_files_instance",
+    "type": "java.lang.String",
+    "description": "Id for instance that service for files have it "
+  },
+  {
+    "name": "id_oauth_instance",
+    "type": "java.lang.String",
+    "description": "Id for instance that service authetication have it"
+  },
+  {
+    "name": "oauthBasicAuth",
+    "type": "java.lang.String",
+    "description": "A description for 'oauthBasicAuth'"
+  }
+]}

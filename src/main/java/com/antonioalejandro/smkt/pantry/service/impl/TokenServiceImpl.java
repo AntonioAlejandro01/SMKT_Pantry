@@ -31,6 +31,9 @@ public class TokenServiceImpl implements TokenService {
 	@Value("${id_oauth_instance}")
 	private String idOauthInstance;
 
+	@Value("${oauthBasicAuth}")
+	private String oauthBasicAuth;
+
 	/** The Constant TEMPLATE_REQUEST. */
 	private static final String REQUEST_KEY = "token";
 
@@ -41,7 +44,7 @@ public class TokenServiceImpl implements TokenService {
 	private static final String HEADER_AUTH = "Authorization";
 
 	/** The Constant AUTH_VALUE. */
-	private static final String AUTH_VALUE = "Basic c21hcnRraXRjaGVuYXBwOjEzMzMx";
+	private static final String BASIC_AUTH_TEMPLATE = "Basic %s";
 
 	/**
 	 * Gets the user id.
@@ -53,7 +56,8 @@ public class TokenServiceImpl implements TokenService {
 	public Optional<String> getUserId(String token) {
 		var client = new OkHttpClient();
 		RequestBody body = new FormBody.Builder().add(REQUEST_KEY, token).build();
-		Request req = new Request.Builder().url(getUrl()).post(body).addHeader(HEADER_AUTH, AUTH_VALUE).build();
+		Request req = new Request.Builder().url(getUrl()).post(body)
+				.addHeader(HEADER_AUTH, String.format(BASIC_AUTH_TEMPLATE, oauthBasicAuth)).build();
 		try (var response = client.newCall(req).execute()) {
 			if (response.code() != HttpStatus.OK.value()) {
 				log.info("response code for /check_token is not 200. CODE: {}", response.code());
