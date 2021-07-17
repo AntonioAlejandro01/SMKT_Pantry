@@ -24,3 +24,5 @@ logging:
 
 id_files_instance: smkt-files
 id_oauth_instance: smkt-oauth
+
+oauthBasicAuth: c21hcnRraXRjaGVuYXBwOnNlY3JldA==
